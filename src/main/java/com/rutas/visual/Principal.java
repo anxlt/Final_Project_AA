@@ -1,10 +1,12 @@
 package com.rutas.visual;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.awt.*;
+import java.io.IOException;
 
 public class Principal extends Application {
 
@@ -13,14 +15,15 @@ public class Principal extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
-        Label label = new Label("Gestión de Rutas de Transporte");
-        VBox root = new VBox(label);
-        Scene scene = new Scene(root, 800, 600);
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Principal.class.getResource("/principal.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.setTitle("Sistema de Gestión de Rutas de Transporte");
 
-        primaryStage.setTitle("Rutas de Transporte");
-        primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.show();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        stage.setWidth(screenSize.getWidth() - 20);
+        stage.setHeight(screenSize.getHeight() - 50);
+
+        stage.show();
     }
 }
