@@ -4,11 +4,13 @@ public class Parada {
     private String id;
     private String nombre;
     private String tipo;
+    private String direccion;
 
-    public Parada(String id, String nombre, String tipo) {
+    public Parada(String id, String nombre, String tipo, String direccion) {
         this.id = id;
         this.nombre = nombre;
         this.tipo = tipo;
+        this.direccion = direccion;
     }
 
     public String getId() {
@@ -33,5 +35,13 @@ public class Parada {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 }
