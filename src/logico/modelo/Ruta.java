@@ -1,4 +1,4 @@
-package logico.algoritmos;
+package logico.modelo;
 
 public class Ruta {
 
