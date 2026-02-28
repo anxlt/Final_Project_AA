@@ -1,47 +1,46 @@
 package com.rutas.logico.modelo;
 
+import java.util.Objects;
+
 public class Parada {
-    private String id;
-    private String nombre;
-    private String tipo;
-    private String direccion;
+    private int codigo;
+    private String nombreParada;
+    private TipoParada tipo;
+    private String ubicacion;
 
-    public Parada(String id, String nombre, String tipo, String direccion) {
-        this.id = id;
-        this.nombre = nombre;
+    public Parada(int codigo, String nombreParada, TipoParada tipo, String ubicacion) {
+        this.codigo = codigo;
+        this.nombreParada = nombreParada;
         this.tipo = tipo;
-        this.direccion = direccion;
+        this.ubicacion = ubicacion;
     }
 
-    public String getId() {
-        return id;
+    public int getCodigo() { return codigo; }
+    public String getNombreParada() { return nombreParada; }
+    public TipoParada getTipo() { return tipo; }
+    public String getUbicacion() { return ubicacion; }
+
+    public void setCodigo(int codigo) { this.codigo = codigo; }
+    public void setNombreParada(String nombreParada) { this.nombreParada = nombreParada; }
+    public void setTipo(TipoParada tipo) { this.tipo = tipo; }
+    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Parada parada = (Parada) o;
+        return Objects.equals(codigo, parada.codigo);
     }
 
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return Objects.hash(codigo);
     }
 
-    public String getNombre() {
-        return nombre;
+    @Override
+    public String toString() {
+        return nombreParada;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
 }

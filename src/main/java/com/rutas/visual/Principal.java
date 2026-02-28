@@ -17,6 +17,7 @@ public class Principal extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Principal.class.getResource("/principal.fxml"));
+
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Sistema de Gestión de Rutas de Transporte");
 
@@ -24,6 +25,7 @@ public class Principal extends Application {
         stage.setWidth(screenSize.getWidth() - 20);
         stage.setHeight(screenSize.getHeight() - 50);
 
+        stage.setScene(scene);
         stage.show();
     }
 }
