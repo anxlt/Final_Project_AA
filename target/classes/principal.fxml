@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.PrincipalController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.PrincipalController">
    <children>
-      <AmbientLight color="CHARTREUSE" layoutX="-50.0" layoutY="154.0" lightOn="true" />
-      <PerspectiveCamera />
+      <BorderPane prefHeight="400.0" prefWidth="600.0">
+         <center>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Circle fill="DODGERBLUE" layoutX="271.0" layoutY="178.0" radius="100.0" stroke="BLACK" strokeType="INSIDE" />
+               </children></AnchorPane>
+         </center>
+      </BorderPane>
    </children>
 </AnchorPane>
