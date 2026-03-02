@@ -30,10 +30,7 @@ public class ParadaCrud {
         Parada parada = grafo.getParada(new Parada(codigo, null, null, null));
         if (parada == null) return false;
 
-        if (nuevoNombre != null && !nuevoNombre.isBlank())       parada.setNombreParada(nuevoNombre);
-        if (nuevoTipo != null)                                   parada.setTipo(nuevoTipo);
-        if (nuevaUbicacion != null && !nuevaUbicacion.isBlank()) parada.setUbicacion(nuevaUbicacion);
-
+        grafo.modificarParada(parada, nuevoNombre, nuevaUbicacion, nuevoTipo);
         return true;
     }
 
