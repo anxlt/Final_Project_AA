@@ -1,5 +1,7 @@
 package com.rutas.visual;
 
+import com.rutas.logico.modelo.GrafoTransporte;
+import com.rutas.servicios.ServicioGrafo;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,8 +19,8 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        ServicioGrafo.init(new GrafoTransporte());
         FXMLLoader fxmlLoader = new FXMLLoader(Launcher.class.getResource("/view/Menu.fxml"));
-
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Sistema de Gestión de Rutas de Transporte");
         Image icon = new Image(getClass().getResourceAsStream("/images/logo.png"));

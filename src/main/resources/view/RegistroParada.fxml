@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane prefHeight="451.0" prefWidth="488.0" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 10;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.RegistroParadaController">
+
+    <!-- TITULO - CERRAR -->
+    <Label layoutX="32.0" layoutY="32.0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Nueva Parada" />
+
+    <!-- NOMBRE -->
+    <Label layoutX="32.0" layoutY="90.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Nombre de la parada" />
+    <TextField fx:id="txtNombre" layoutX="32.0" layoutY="112.0" prefHeight="42.0" prefWidth="416.0" promptText="Ej: Parada Central Norte" style="-fx-background-color: white; -fx-border-color: #DDDDDD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13px; -fx-padding: 0 12;" />
+
+    <!-- DIRECCION -->
+    <Label layoutX="32.0" layoutY="172.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Dirección" />
+    <TextField fx:id="txtDireccion" layoutX="32.0" layoutY="194.0" prefHeight="42.0" prefWidth="416.0" promptText="Ej: Av. Principal #123" style="-fx-background-color: white; -fx-border-color: #DDDDDD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13px; -fx-padding: 0 12;" />
+
+    <!-- TIPO -->
+    <Label layoutX="32.0" layoutY="254.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Tipo de transporte" />
+    <ComboBox fx:id="cmbTipo" layoutX="32.0" layoutY="276.0" prefHeight="42.0" prefWidth="416.0" promptText="Seleccionar..." style="-fx-background-color: white; -fx-border-color: #DDDDDD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13px;" />
+
+    <!-- BOTONES -->
+    <HBox alignment="CENTER_RIGHT" layoutX="116.0" layoutY="366.0" prefHeight="42.0" prefWidth="316.0" spacing="12">
+        <Button mnemonicParsing="false" onAction="#handleCancelar" prefHeight="42.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #DDDDDD; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;" text="Cancelar" />
+        <Button mnemonicParsing="false" onAction="#handleGuardar" prefHeight="42.0" prefWidth="120.0" style="-fx-background-color: #1B3C53; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Guardar" />
+    </HBox>
+
+</AnchorPane>

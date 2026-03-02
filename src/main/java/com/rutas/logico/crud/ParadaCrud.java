@@ -9,27 +9,26 @@ import java.util.List;
 public class ParadaCrud {
 
     private final GrafoTransporte grafo;
+    private int contador = 0;
 
     public ParadaCrud(GrafoTransporte grafo) {
         this.grafo = grafo;
     }
 
-    public boolean insertarParada(String codigo, String nombre, TipoParada tipo, String ubicacion) {
-        if (codigo == null || codigo.isBlank() || nombre == null || nombre.isBlank() || tipo == null)
+    public boolean insertarParada(String nombre, TipoParada tipo, String ubicacion) {
+        if (nombre == null || nombre.isBlank() || tipo == null)
             return false;
 
+        contador++;
+        String codigo = String.valueOf(contador);
         Parada nueva = new Parada(codigo, nombre, tipo, ubicacion);
-        if (grafo.existeParada(nueva))
-            return false;
-
         grafo.agregarParada(nueva);
         return true;
     }
 
     public boolean modificarParada(String codigo, String nuevoNombre, TipoParada nuevoTipo, String nuevaUbicacion) {
         Parada parada = grafo.getParada(new Parada(codigo, null, null, null));
-        if (parada == null)
-            return false;
+        if (parada == null) return false;
 
         if (nuevoNombre != null && !nuevoNombre.isBlank())       parada.setNombreParada(nuevoNombre);
         if (nuevoTipo != null)                                   parada.setTipo(nuevoTipo);
@@ -40,8 +39,7 @@ public class ParadaCrud {
 
     public boolean eliminarParada(String codigo) {
         Parada clave = new Parada(codigo, null, null, null);
-        if (!grafo.existeParada(clave))
-            return false;
+        if (!grafo.existeParada(clave)) return false;
 
         grafo.eliminarParada(clave);
         return true;
