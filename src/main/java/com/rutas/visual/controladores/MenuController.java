@@ -1,5 +1,6 @@
 package com.rutas.visual.controladores;
 
+import com.rutas.logico.excepciones.VistaNoCargadaException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -61,7 +62,7 @@ public class MenuController {
             AnchorPane vista = FXMLLoader.load(getClass().getResource(ruta));
             borderPane.setCenter(vista);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new VistaNoCargadaException(ruta,e);
         }
     }
 }

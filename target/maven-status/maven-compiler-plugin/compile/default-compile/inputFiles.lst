@@ -4,6 +4,7 @@ C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\logico\mo
 C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\logico\modelo\Ruta.java
 C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\logico\modelo\TipoParada.java
 C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\visual\controladores\MenuController.java
+C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\logico\excepciones\VistaNoCargadaException.java
 C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\visual\Launcher.java
 C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\visual\controladores\MapaController.java
 C:\Users\liber\IdeaProjects\Final Project - AA\src\main\java\com\rutas\visual\controladores\ParadasController.java

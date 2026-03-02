@@ -1,3 +1,4 @@
+com\rutas\logico\excepciones\VistaNoCargadaException.class
 com\rutas\logico\modelo\Criterio.class
 com\rutas\visual\controladores\ParadasController.class
 com\rutas\visual\controladores\MapaController.class
