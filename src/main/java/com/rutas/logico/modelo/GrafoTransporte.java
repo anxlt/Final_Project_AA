@@ -32,6 +32,49 @@ public class GrafoTransporte {
         listaAdyacencia.get(origen).add(ruta);
     }
 
+    public void eliminarRuta(Ruta ruta){
+        Parada origen = ruta.getOrigen();
+        List<Ruta> rutas = listaAdyacencia.get(origen);
+        if(rutas != null)
+            rutas.remove(ruta);
+
+    }
+
+    public List<Ruta> getRutas(Parada parada){
+        return listaAdyacencia.getOrDefault(parada, new ArrayList<>());
+    }
+
+    public void modificarParada(Parada parada, String nuevoNombre, String nuevaUbicacion, TipoParada nuevoTipo) {
+        for (Parada p : listaAdyacencia.keySet()) {
+            if (p.equals(parada)) {
+                p.setNombreParada(nuevoNombre);
+                p.setUbicacion(nuevaUbicacion);
+                p.setTipo(nuevoTipo);
+            }
+        }
+    }
+
+    public void modificarRuta(Ruta rutaOriginal, Ruta rutaNueva) {
+
+        List<Ruta> rutasDelOrigen = listaAdyacencia.get(rutaOriginal.getOrigen());
+        if (rutasDelOrigen == null) return;
+
+        for (int i = 0; i < rutasDelOrigen.size(); i++) {
+            if (rutasDelOrigen.get(i).getId().equals(rutaOriginal.getId())) {
+
+                if (rutaOriginal.getOrigen().equals(rutaNueva.getOrigen())) {
+                    rutasDelOrigen.set(i, rutaNueva);
+                } else {
+                    rutasDelOrigen.remove(i);
+                    listaAdyacencia.putIfAbsent(rutaNueva.getOrigen(), new ArrayList<>());
+                    listaAdyacencia.get(rutaNueva.getOrigen()).add(rutaNueva);
+                }
+
+                listaAdyacencia.putIfAbsent(rutaNueva.getDestino(), new ArrayList<>());
+            }
+        }
+    }
+
     public boolean existeParada(Parada parada) {
         return listaAdyacencia.containsKey(parada);
     }
