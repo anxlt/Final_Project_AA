@@ -6,7 +6,7 @@ public class GrafoTransporte {
 
     private final Map<Parada, List<Ruta>> listaAdyacencia;
 
-    public GrafoTransporte(Map<Parada, List<Ruta>> listaAdyacencia) {
+    public GrafoTransporte() {
         this.listaAdyacencia = new HashMap<>();
     }
 
@@ -32,5 +32,18 @@ public class GrafoTransporte {
         listaAdyacencia.get(origen).add(ruta);
     }
 
+    public boolean existeParada(Parada parada) {
+        return listaAdyacencia.containsKey(parada);
+    }
+
+    public Parada getParada(Parada clave) {
+        for (Parada p : listaAdyacencia.keySet())
+            if (p.equals(clave)) return p;
+        return null;
+    }
+
+    public List<Parada> getParadas() {
+        return new ArrayList<>(listaAdyacencia.keySet());
+    }
 
 }

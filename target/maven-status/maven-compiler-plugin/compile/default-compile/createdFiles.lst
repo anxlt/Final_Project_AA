@@ -2,6 +2,7 @@ com\rutas\logico\modelo\Criterio.class
 com\rutas\visual\controladores\ParadasController.class
 com\rutas\visual\controladores\MapaController.class
 com\rutas\visual\controladores\PrincipalController.class
+com\rutas\logico\modelo\GrafoTransporte.class
 com\rutas\logico\crud\ParadaCrud.class
 com\rutas\visual\controladores\RutasController.class
 com\rutas\visual\Launcher.class
