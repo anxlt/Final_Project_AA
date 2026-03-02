@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="556.0" prefWidth="947.0" style="-fx-background-color: #E3E3E3;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.PrincipalController">
+
+   //TOPBAR
+   <VBox prefHeight="72.0" prefWidth="947.0" spacing="4" style="-fx-background-color: white; -fx-padding: 20 30 20 30;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Bienvenido a NexRoute" />
+      <Label style="-fx-font-size: 13px; -fx-text-fill: #888888;" text="Slogan que ni puta idea cual es todavia jijiji" />
+   </VBox>
+
+   //TITULO
+   <Label layoutX="30.0" layoutY="119.0" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #456882;" text="RESUMEN GENERAL" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="119.0" />
+
+   //TARJETA PARADAS
+   <VBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="152.0" prefHeight="151.0" prefWidth="253.0" spacing="6" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="152.0">
+      <Label fx:id="lblParadas" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="0" />
+      <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Paradas Existentes" />
+   </VBox>
+
+   //TARJETA RUTAS
+   <VBox alignment="CENTER_LEFT" layoutX="321.0" layoutY="152.0" prefHeight="151.0" prefWidth="260.0" spacing="6" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="321.0" AnchorPane.topAnchor="152.0">
+      <Label fx:id="lblRutas" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="0" />
+      <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Rutas Disponibles" />
+   </VBox>
+
+   //TARJETA PRECIO
+   <VBox alignment="CENTER_LEFT" layoutX="617.0" layoutY="152.0" prefHeight="151.0" prefWidth="260.0" spacing="6" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="617.0" AnchorPane.topAnchor="152.0">
+      <Label fx:id="lblPrecio" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="0$" />
+      <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Precio Promedio" />
+   </VBox>
+
+   //SEGMENTACION
+   <VBox layoutX="29.0" layoutY="344.0" prefHeight="233.0" prefWidth="508.0" spacing="14" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="29.0" AnchorPane.topAnchor="344.0">
+
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Segmentación de Transporte" />
+         <Label style="-fx-background-color: #E3E3E3; -fx-text-fill: #456882; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 20;" text="4 tipos" />
+      </HBox>
+
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <Label prefWidth="60" style="-fx-font-size: 13px; -fx-text-fill: #555;" text="Bus" />
+         <ProgressBar prefHeight="8" prefWidth="300" progress="0.76" style="-fx-accent: #234C6A;" />
+         <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="76%" />
+      </HBox>
+
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <Label prefWidth="60" style="-fx-font-size: 13px; -fx-text-fill: #555;" text="Taxi" />
+         <ProgressBar prefHeight="8" prefWidth="300" progress="1.0" style="-fx-accent: #234C6A;" />
+         <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="100%" />
+      </HBox>
+
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <Label prefWidth="60" style="-fx-font-size: 13px; -fx-text-fill: #555;" text="Metro" />
+         <ProgressBar prefHeight="8" prefWidth="300" progress="0.35" style="-fx-accent: #456882;" />
+         <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="35%" />
+      </HBox>
+
+      <HBox alignment="CENTER_LEFT" spacing="10">
+         <Label prefWidth="60" style="-fx-font-size: 13px; -fx-text-fill: #555;" text="Tren" />
+         <ProgressBar prefHeight="8" prefWidth="300" progress="0.57" style="-fx-accent: #456882;" />
+         <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="57%" />
+      </HBox>
+
+   </VBox>
+
+</AnchorPane>

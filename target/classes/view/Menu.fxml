@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="borderPane" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.MenuController">
+
+   <left>
+      <VBox prefHeight="700.0" prefWidth="251.0" style="-fx-background-color: #1B3C53;">
+
+         <!-- LOGO  -->
+         <VBox alignment="CENTER" prefHeight="193.0" prefWidth="252.0" style="-fx-padding: 24 16 24 16;">
+            <ImageView fitHeight="147.0" fitWidth="236.0" preserveRatio="true">
+               <image>
+                  <Image url="@/Images/logoCompleto.png" />
+               </image>
+            </ImageView>
+         </VBox>
+
+         <!-- SEPARADOR -->
+         <Region maxHeight="1.0" prefHeight="1.0" prefWidth="251.0" style="-fx-background-color: rgba(227,227,227,0.2);" />
+
+         <!-- BOTONES -->
+         <VBox spacing="12" style="-fx-padding: 28 0 0 0;">
+            <Button fx:id="btnPrincipal" maxWidth="Infinity" onAction="#handlePrincipal" style="-fx-background-color: #234C6A; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 20; -fx-alignment: CENTER-LEFT; -fx-background-radius: 8; -fx-cursor: hand;" text="       Principal" />
+            <Button fx:id="btnParadas" maxWidth="Infinity" onAction="#handleParadas" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px; -fx-padding: 16 20; -fx-alignment: CENTER-LEFT; -fx-cursor: hand;" text="       Paradas" />
+            <Button fx:id="btnRutas" maxWidth="Infinity" onAction="#handleRutas" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px; -fx-padding: 16 20; -fx-alignment: CENTER-LEFT; -fx-cursor: hand;" text="       Rutas" />
+            <Button fx:id="btnMapa" maxWidth="Infinity" onAction="#handleMapa" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px; -fx-padding: 16 20; -fx-alignment: CENTER-LEFT; -fx-cursor: hand;" text="       Mapa" />
+         </VBox>
+
+      </VBox>
+   </left>
+
+   <center>
+      <AnchorPane style="-fx-background-color: #E3E3E3;" />
+   </center>
+
+</BorderPane>
