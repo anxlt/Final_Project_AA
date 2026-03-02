@@ -28,7 +28,6 @@ public class Launcher extends Application {
         stage.setWidth(screenSize.getWidth() - 20);
         stage.setHeight(screenSize.getHeight() - 50);
         stage.setResizable(false);
-        stage.setMaximized(true);
 
         stage.setScene(scene);
         stage.show();
