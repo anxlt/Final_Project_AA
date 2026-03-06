@@ -3,7 +3,8 @@ package com.rutas.logico.modelo;
 public enum TipoParada {
     BUS("Bus"),
     TREN("Tren"),
-    TAXI("Taxi");
+    TAXI("Taxi"),
+    METRO("Metro");
 
     private final String nombre;
 

@@ -7,6 +7,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -14,13 +16,13 @@ import java.util.List;
 
 public class RegistroRutaController {
 
-    @FXML private TextField txtId;
+    @FXML private TextField txtNombre;
     @FXML private ComboBox<Parada> cmbOrigen;
     @FXML private ComboBox<Parada> cmbDestino;
-    @FXML private TextField txtTiempo;
-    @FXML private TextField txtCosto;
-    @FXML private TextField txtDistancia;
-    @FXML private TextField txtTransbordos;
+    @FXML private Spinner<Double> spnTiempo;
+    @FXML private Spinner<Double> spnCosto;
+    @FXML private Spinner<Double> spnDistancia;
+    @FXML private Spinner<Integer> spnTransbordos;
 
     private RutaCrud rutaCrud;
 
@@ -28,22 +30,35 @@ public class RegistroRutaController {
         this.rutaCrud = rutaCrud;
     }
 
+    @FXML
+    public void initialize() {
+        spnTiempo.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1440, 0, 1));
+        spnCosto.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100000, 0, 1));
+        spnDistancia.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99999, 0, 0.5));
+        spnTransbordos.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 0, 1));
+    }
+
     public void setParadas(List<Parada> paradas) {
+        if (paradas.size() < 2) {
+            mostrarAlerta("Se necesitan al menos dos paradas para registrar una ruta.");
+            cerrarVentana();
+            return;
+        }
         cmbOrigen.setItems(FXCollections.observableArrayList(paradas));
         cmbDestino.setItems(FXCollections.observableArrayList(paradas));
     }
 
     @FXML
     public void handleGuardar(ActionEvent e) {
-        String id = txtId.getText().trim();
+        String nombre = txtNombre.getText().trim();
         Parada origen = cmbOrigen.getValue();
         Parada destino = cmbDestino.getValue();
-        double tiempo = Double.parseDouble(txtTiempo.getText().trim());
-        double costo = Double.parseDouble(txtCosto.getText().trim());
-        double distancia = Double.parseDouble(txtDistancia.getText().trim());
-        int transbordos = Integer.parseInt(txtTransbordos.getText().trim());
+        double tiempo = spnTiempo.getValue();
+        double costo = spnCosto.getValue();
+        double distancia = spnDistancia.getValue();
+        int transbordos = spnTransbordos.getValue();
 
-        rutaCrud.agregarRuta(id, origen, destino, tiempo, costo, distancia, transbordos);
+        rutaCrud.agregarRuta(nombre, origen, destino, tiempo, costo, distancia, transbordos);
         cerrarVentana();
     }
 
@@ -53,7 +68,7 @@ public class RegistroRutaController {
     }
 
     private void cerrarVentana() {
-        Stage stage = (Stage) txtId.getScene().getWindow();
+        Stage stage = (Stage) txtNombre.getScene().getWindow();
         stage.close();
     }
 
