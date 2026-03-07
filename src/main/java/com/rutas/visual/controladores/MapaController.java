@@ -122,4 +122,84 @@ public class MapaController {
 
     }
 
+    @FXML
+    public void handleBuscar(ActionEvent e) {
+        Parada origen = cmbOrigen.getValue();
+        Parada destino = cmbDestino.getValue();
+        Criterio criterio = cmbCriterio.getValue();
+
+        if (origen == null || destino == null || criterio == null) {
+            mostrarAlerta("Selección incompleta", "Por favor selecciona origen, destino y criterio.");
+            return;
+        }
+
+        if (origen.equals(destino)) {
+            mostrarAlerta("Paradas iguales", "El origen y el destino no pueden ser la misma parada.");
+            return;
+        }
+
+        if (paradas.size() < 2) {
+            mostrarAlerta("Sin paradas", "Debe haber al menos dos paradas para buscar una ruta.");
+            return;
+        }
+
+        List<Parada> camino = Dijkstra.ejecutar(ServicioGrafo.get(), origen, destino, criterio);
+
+        if (camino == null || camino.isEmpty()) {
+            rutaOptima = new ArrayList<>();
+            dibujar();
+            lblParadas.setText("Sin ruta disponible");
+            lblTiempo.setText("-");
+            lblCosto.setText("-");
+            lblDistancia.setText("-");
+            lblTransbordos.setText("-");
+            mostrarAlerta("Sin ruta", "No existe ruta entre " + origen.getNombreParada()
+                    + " y " + destino.getNombreParada() + " con el criterio seleccionado.");
+            return;
+        }
+
+        rutaOptima = camino;
+        dibujar();
+
+        StringBuilder sbRuta = new StringBuilder();
+        for (int i = 0; i < camino.size(); i++) {
+            if (i > 0) sbRuta.append(" → ");
+            sbRuta.append(camino.get(i).getNombreParada());
+        }
+        lblParadas.setText(sbRuta.toString());
+
+        double totalTiempo = 0, totalCosto = 0, totalDistancia = 0, totalTransbordos = 0;
+
+        for (int i = 0; i < camino.size() - 1; i++) {
+            Parada desde = camino.get(i);
+            Parada hacia = camino.get(i + 1);
+
+            for (Ruta ruta : ServicioGrafo.get().obtenerVecinos(desde)) {
+                if (ruta.getDestino().equals(hacia)) {
+                    Object pt  = ruta.getPeso(Criterio.TIEMPO);
+                    Object pc  = ruta.getPeso(Criterio.COSTO);
+                    Object pd  = ruta.getPeso(Criterio.DISTANCIA);
+                    Object ptr = ruta.getPeso(Criterio.TRANSBORDOS);
+
+                    if (pt  instanceof Number) totalTiempo      += ((Number) pt).doubleValue();
+                    if (pc  instanceof Number) totalCosto       += ((Number) pc).doubleValue();
+                    if (pd  instanceof Number) totalDistancia   += ((Number) pd).doubleValue();
+                    if (ptr instanceof Number) totalTransbordos += ((Number) ptr).doubleValue();
+                    break;
+                }
+            }
+        }
+
+        lblTiempo.setText(String.format("%.1f min", totalTiempo));
+        lblCosto.setText(String.format("$%.2f", totalCosto));
+        lblDistancia.setText(String.format("%.1f km", totalDistancia));
+        lblTransbordos.setText(String.valueOf((int) totalTransbordos));
+    }
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
 }
