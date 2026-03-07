@@ -11,44 +11,44 @@ public class Dijkstra {
 
     public static List<Parada> ejecutar(GrafoTransporte grafo, Parada origen, Parada destino, Criterio criterio) {
 
-        Map<Parada, Double>     costos      = new HashMap<>();
-        Map<Parada, Parada>     anterior    = new HashMap<>();
-        PriorityQueue<double[]> cola        = new PriorityQueue<>(Comparator.comparingDouble(e -> e[1]));
-        Set<Parada>             visitados   = new HashSet<>();
-        Map<Integer, Parada>    hashAParada = new HashMap<>();
+        Map<Parada, Double> costos   = new HashMap<>();
+        Map<Parada, Parada> anterior = new HashMap<>();
+        Set<Parada> visitados        = new HashSet<>();
 
         for (Parada p : grafo.getParadas()) {
             costos.put(p, Double.MAX_VALUE);
-            hashAParada.put(p.hashCode(), p);
         }
 
         costos.put(origen, 0.0);
-        cola.add(new double[]{ origen.hashCode(), 0.0 });
 
-        boolean destinoAlcanzado = false;
+        PriorityQueue<Parada> cola = new PriorityQueue<>(new Comparator<Parada>() {
+            @Override
+            public int compare(Parada a, Parada b) {
+                return Double.compare(costos.get(a), costos.get(b));
+            }
+        });
 
-        while (!cola.isEmpty() && !destinoAlcanzado) {
-            double[] actual       = cola.poll();
-            Parada   paradaActual = hashAParada.get((int) actual[0]);
+        cola.add(origen);
 
-            if (paradaActual != null && !visitados.contains(paradaActual)) {
-                visitados.add(paradaActual);
+        while (!cola.isEmpty()) {
+            Parada actual = cola.poll();
 
-                if (paradaActual.equals(destino)) {
-                    destinoAlcanzado = true;
-                } else {
-                    for (Ruta ruta : grafo.obtenerVecinos(paradaActual)) {
-                        Parada vecino  = ruta.getDestino();
-                        Object pesoObj = ruta.getPeso(criterio);
+            if (visitados.contains(actual)) continue;
+            visitados.add(actual);
 
-                        if (!visitados.contains(vecino) && pesoObj != null) {
-                            double nuevoCosto = costos.get(paradaActual) + ((Number) pesoObj).doubleValue();
-                            if (nuevoCosto < costos.getOrDefault(vecino, Double.MAX_VALUE)) {
-                                costos.put(vecino, nuevoCosto);
-                                anterior.put(vecino, paradaActual);
-                                cola.add(new double[]{ vecino.hashCode(), nuevoCosto });
-                            }
-                        }
+            if (actual.equals(destino)) break;
+
+            for (Ruta ruta : grafo.obtenerVecinos(actual)) {
+                Parada vecino  = ruta.getDestino();
+                Object pesoObj = ruta.getPeso(criterio);
+
+                if (!visitados.contains(vecino) && pesoObj != null) {
+                    double nuevoCosto = costos.get(actual) + ((Number) pesoObj).doubleValue();
+                    if (nuevoCosto < costos.getOrDefault(vecino, Double.MAX_VALUE)) {
+                        costos.put(vecino, nuevoCosto);
+                        anterior.put(vecino, actual);
+                        cola.remove(vecino);
+                        cola.add(vecino);
                     }
                 }
             }

@@ -22,9 +22,9 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import javafx.util.StringConverter;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class ParadasController {
@@ -37,6 +37,8 @@ public class ParadasController {
     @FXML private TableColumn<Parada, String> colNombre;
     @FXML private TableColumn<Parada, String> colTipo;
     @FXML private TableColumn<Parada, String> colDireccion;
+    @FXML private Button btnModificar;
+    @FXML private Button btnEliminar;
 
     private final ParadaCrud paradaCrud = new ParadaCrud(ServicioGrafo.get());
     private ObservableList<Parada> listaBase = FXCollections.observableArrayList();
@@ -84,6 +86,15 @@ public class ParadasController {
         listaFiltrada = new FilteredList<>(listaBase);
         tablaParadas.setItems(listaFiltrada);
 
+        tablaParadas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Parada>() {
+            @Override
+            public void changed(ObservableValue<? extends Parada> obs, Parada oldVal, Parada newVal) {
+                boolean seleccionado = newVal != null;
+                btnModificar.setDisable(!seleccionado);
+                btnEliminar.setDisable(!seleccionado);
+            }
+        });
+
         cmbTipo.valueProperty().addListener(new ChangeListener<TipoParada>() {
             @Override
             public void changed(ObservableValue<? extends TipoParada> obs, TipoParada oldVal, TipoParada newVal) {
@@ -122,16 +133,44 @@ public class ParadasController {
 
     @FXML
     public void handleNuevaParada(ActionEvent e) {
+        abrirFormulario(null);
+    }
+
+    @FXML
+    public void handleModificar(ActionEvent e) {
+        Parada seleccionada = tablaParadas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) return;
+        abrirFormulario(seleccionada);
+    }
+
+    @FXML
+    public void handleEliminar(ActionEvent e) {
+        Parada seleccionada = tablaParadas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) return;
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmar eliminación");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Deseas eliminar la parada \"" + seleccionada.getNombreParada() + "\"?");
+        Optional<ButtonType> resultado = alert.showAndWait();
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            paradaCrud.eliminarParada(seleccionada.getCodigo());
+            actualizarTabla();
+        }
+    }
+
+    private void abrirFormulario(Parada parada) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegistroParada.fxml"));
             Parent vista = loader.load();
 
             RegistroParadaController ctrl = loader.getController();
             ctrl.setParadaCrud(paradaCrud);
+            if (parada != null) ctrl.setParada(parada);
 
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle("Nueva Parada");
+            dialog.setTitle(parada != null ? "Modificar Parada" : "Nueva Parada");
             dialog.setScene(new Scene(vista));
             dialog.getIcons().add(new Image(getClass().getResourceAsStream("/images/regParadaPin.png")));
             dialog.setResizable(false);
@@ -146,8 +185,22 @@ public class ParadasController {
     }
 
     private void actualizarTabla() {
+        Parada seleccionadaAntes = tablaParadas.getSelectionModel().getSelectedItem();
         List<Parada> paradas = paradaCrud.listarParadas();
         listaBase.setAll(paradas);
         aplicarFiltros();
+
+        if (seleccionadaAntes != null) {
+            for (Parada p : listaBase) {
+                if (p.getCodigo().equals(seleccionadaAntes.getCodigo())) {
+                    tablaParadas.getSelectionModel().select(p);
+                    break;
+                }
+            }
+        }
+
+        boolean haySeleccion = tablaParadas.getSelectionModel().getSelectedItem() != null;
+        btnModificar.setDisable(!haySeleccion);
+        btnEliminar.setDisable(!haySeleccion);
     }
 }

@@ -15,7 +15,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.rutas.visual.controladores.RegistroRutaController">
 
-    <Label layoutX="32.0" layoutY="32.0"
+    <Label fx:id="lblTitulo" layoutX="32.0" layoutY="32.0"
            style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Nueva Ruta" />
 
     <!-- NOMBRE -->
