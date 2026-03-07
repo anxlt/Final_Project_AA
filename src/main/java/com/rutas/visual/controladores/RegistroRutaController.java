@@ -2,8 +2,10 @@ package com.rutas.visual.controladores;
 
 import com.rutas.logico.crud.RutaCrud;
 import com.rutas.logico.modelo.Criterio;
+import com.rutas.logico.modelo.GrafoTransporte;
 import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.modelo.Ruta;
+import com.rutas.servicios.ServicioGrafo;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -94,6 +96,20 @@ public class RegistroRutaController {
         int    transbordos = spnTransbordos.getValue();
 
         if (rutaAModificar != null) {
+            GrafoTransporte copia = ServicioGrafo.get().copiar();
+            copia.eliminarRuta(rutaAModificar);
+            Ruta rutaSimulada = new Ruta(rutaAModificar.getId(), nombre, origen, destino);
+            for (Criterio c : Criterio.values()) {
+                rutaSimulada.setPeso(c, rutaAModificar.getPeso(c));
+            }
+            copia.agregarRuta(rutaSimulada);
+            Parada paradaProblema = copia.esConexo();
+            if (paradaProblema != null) {
+                mostrarAlerta("No se puede aplicar esta modificación porque el grafo quedaría no conexo: "
+                        + " por la parada \"" + paradaProblema.getNombreParada()
+                        + "\"");
+                return;
+            }
             rutaCrud.modificarRuta(rutaAModificar, nombre, origen, destino, tiempo, costo, distancia, transbordos);
         } else {
             boolean agregado = rutaCrud.agregarRuta(nombre, origen, destino, tiempo, costo, distancia, transbordos);

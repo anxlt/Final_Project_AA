@@ -2,6 +2,7 @@ package com.rutas.visual.controladores;
 
 import com.rutas.logico.crud.ParadaCrud;
 import com.rutas.logico.excepciones.VistaNoCargadaException;
+import com.rutas.logico.modelo.GrafoTransporte;
 import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.modelo.TipoParada;
 import com.rutas.servicios.ServicioGrafo;
@@ -146,7 +147,22 @@ public class ParadasController {
     @FXML
     public void handleEliminar(ActionEvent e) {
         Parada seleccionada = tablaParadas.getSelectionModel().getSelectedItem();
-        if (seleccionada == null) return;
+        if (seleccionada == null)
+            return;
+
+        GrafoTransporte copia = ServicioGrafo.get().copiar();
+        copia.eliminarParada(seleccionada);
+        Parada paradaProblema = copia.esConexo();
+        if (paradaProblema != null) {
+            Alert bloqueo = new Alert(Alert.AlertType.WARNING);
+            bloqueo.setTitle("Operación bloqueada");
+            bloqueo.setHeaderText(null);
+            bloqueo.setContentText("No se puede eliminar \"" + seleccionada.getNombreParada()
+                    + "\" porque el grafo quedaría no conexo por la parada \""
+                    + paradaProblema.getNombreParada() + "\"");
+            bloqueo.showAndWait();
+            return;
+        }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmar eliminación");

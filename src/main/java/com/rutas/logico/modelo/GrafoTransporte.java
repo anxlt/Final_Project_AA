@@ -96,6 +96,72 @@ public class GrafoTransporte {
         return Collections.unmodifiableList(listaAdyacencia.get(parada));
     }
 
+    public Parada esConexo() {
+        if (listaAdyacencia.isEmpty())
+            return null;
+        if (listaAdyacencia.size() == 1)
+            return null;
 
+        Parada inicio = listaAdyacencia.keySet().iterator().next();
+
+        Set<Parada> visitadosAdelante = new HashSet<>();
+        Queue<Parada> cola = new LinkedList<>();
+        cola.add(inicio);
+        visitadosAdelante.add(inicio);
+
+        while (!cola.isEmpty()) {
+            Parada actual = cola.poll();
+            for (Ruta ruta : obtenerVecinos(actual)) {
+                Parada vecino = ruta.getDestino();
+                if (!visitadosAdelante.contains(vecino)) {
+                    visitadosAdelante.add(vecino);
+                    cola.add(vecino);
+                }
+            }
+        }
+        for (Parada p : listaAdyacencia.keySet()) {
+            if (!visitadosAdelante.contains(p))
+                return p;
+        }
+
+        Map<Parada, List<Parada>> predecesores = new HashMap<>();
+        for (Parada p : listaAdyacencia.keySet()) {
+            predecesores.put(p, new ArrayList<>());
+        }
+        for (Parada p : listaAdyacencia.keySet()) {
+            for (Ruta ruta : obtenerVecinos(p)) {
+                predecesores.get(ruta.getDestino()).add(p);
+            }
+        }
+
+        Set<Parada> visitadosAtras = new HashSet<>();
+        cola.add(inicio);
+        visitadosAtras.add(inicio);
+
+        while (!cola.isEmpty()) {
+            Parada actual = cola.poll();
+            for (Parada predecesor : predecesores.get(actual)) {
+                if (!visitadosAtras.contains(predecesor)) {
+                    visitadosAtras.add(predecesor);
+                    cola.add(predecesor);
+                }
+            }
+        }
+
+        for (Parada p : listaAdyacencia.keySet()) {
+            if (!visitadosAtras.contains(p))
+                return p;
+        }
+
+        return null;
+    }
+
+    public GrafoTransporte copiar() {
+        GrafoTransporte copia = new GrafoTransporte();
+        for (Map.Entry<Parada, List<Ruta>> entrada : listaAdyacencia.entrySet()) {
+            copia.listaAdyacencia.put(entrada.getKey(), new ArrayList<>(entrada.getValue()));
+        }
+        return copia;
+    }
 
 }

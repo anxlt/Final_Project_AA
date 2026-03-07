@@ -15,6 +15,14 @@ public class RutaCrud {
 
     public RutaCrud(GrafoTransporte grafo) {
         this.grafo = grafo;
+        for (Parada p : grafo.getParadas()) {
+            for (Ruta r : grafo.getRutas(p)) {
+                try {
+                    int num = Integer.parseInt(r.getId());
+                    if (num > contador) contador = num;
+                } catch (NumberFormatException ignored) {}
+            }
+        }
     }
 
     public boolean agregarRuta(String nombre, Parada origen, Parada destino,

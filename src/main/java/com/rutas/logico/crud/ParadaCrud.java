@@ -13,6 +13,12 @@ public class ParadaCrud {
 
     public ParadaCrud(GrafoTransporte grafo) {
         this.grafo = grafo;
+        for (Parada p : grafo.getParadas()) {
+            try {
+                int num = Integer.parseInt(p.getCodigo());
+                if (num > contador) contador = num;
+            } catch (NumberFormatException ignored) {}
+        }
     }
 
     public boolean insertarParada(String nombre, TipoParada tipo, String ubicacion) {

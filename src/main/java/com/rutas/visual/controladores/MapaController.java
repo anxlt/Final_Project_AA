@@ -142,12 +142,19 @@ public class MapaController {
             mostrarAlerta("Sin paradas", "Debe haber al menos dos paradas para buscar una ruta.");
             return;
         }
+        Parada paradaDesconectada = ServicioGrafo.get().esConexo();
+        if (paradaDesconectada != null) {
+            mostrarAlerta("Grafo no conexo",
+                    "La parada \"" + paradaDesconectada.getNombreParada()
+                            + "\" no tiene entrada o salida. El grafo no es completamente conexo.");
+            return;
+        }
 
         List<Parada> camino = Dijkstra.ejecutar(ServicioGrafo.get(), origen, destino, criterio);
 
         if (camino == null || camino.isEmpty()) {
             rutaOptima = new ArrayList<>();
-            dibujar();
+            //dibujar();
             lblParadas.setText("Sin ruta disponible");
             lblTiempo.setText("-");
             lblCosto.setText("-");
@@ -159,7 +166,7 @@ public class MapaController {
         }
 
         rutaOptima = camino;
-        dibujar();
+        //dibujar();
 
         StringBuilder sbRuta = new StringBuilder();
         for (int i = 0; i < camino.size(); i++) {
