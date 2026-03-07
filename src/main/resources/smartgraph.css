@@ -1,66 +1,74 @@
-/* Vértices base */
-.graph-vertex {
-    -fx-background-color: #234C6A;
-    -fx-fill: #234C6A;
-    -fx-stroke: white;
+.graph {
+    -fx-background-color: #E3E3E3;
+}
+
+.vertex {
     -fx-stroke-width: 2;
+    -fx-stroke: white;
+    -fx-stroke-type: inside;
+    -fx-fill: #234C6A;
 }
 
-.graph-vertex > .label {
-    -fx-text-fill: white;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
+.vertex:hover {
+    -fx-stroke-width: 3;
 }
 
-/* Origen */
-.graph-vertex.seleccionado-origen {
-    -fx-background-color: #F0A500;
+.vertex-label {
+    -fx-font: bold 11pt "sans-serif";
+    -fx-fill: #1B3C53;
+}
+
+.edge {
+    -fx-stroke-width: 1.5;
+    -fx-stroke: #CCCCCC;
+    -fx-fill: transparent;
+    -fx-stroke-line-cap: round;
+}
+
+.edge:hover {
+    -fx-stroke: #CCCCCC;
+    -fx-stroke-width: 1.5;
+    -fx-fill: transparent;
+}
+
+.edge.camino {
+    -fx-stroke: #1B3C53;
+    -fx-stroke-width: 4;
+    -fx-fill: transparent;
+}
+
+.arrow {
+    -fx-stroke-width: 1.5;
+    -fx-stroke: #CCCCCC;
+    -fx-fill: transparent;
+}
+
+.edge.camino {
+    -fx-stroke: #F0A500;
+    -fx-stroke-width: 4;
+    -fx-fill: transparent;
+}
+
+.edge.camino .arrow {
+    -fx-stroke: #F0A500;
+    -fx-stroke-width: 4;
+    -fx-fill: transparent;
+}
+
+.vertex.seleccionado-origen {
     -fx-fill: #F0A500;
     -fx-stroke: #1B3C53;
     -fx-stroke-width: 3;
 }
 
-.graph-vertex.seleccionado-origen > .label {
-    -fx-text-fill: #1B3C53;
-}
-
-/* Destino */
-.graph-vertex.seleccionado-destino {
-    -fx-background-color: #E84040;
+.vertex.seleccionado-destino {
     -fx-fill: #E84040;
     -fx-stroke: #1B3C53;
     -fx-stroke-width: 3;
 }
 
-.graph-vertex.seleccionado-destino > .label {
-    -fx-text-fill: white;
-}
-
-/*  Nodo intermedio de ruta  */
-.graph-vertex.intermedio {
-    -fx-background-color: white;
+.vertex.intermedio {
     -fx-fill: white;
     -fx-stroke: #1B3C53;
     -fx-stroke-width: 3;
-}
-
-.graph-vertex.intermedio > .label {
-    -fx-text-fill: #1B3C53;
-}
-
-/* Aristas  */
-.graph-edge {
-    -fx-stroke: #CCCCCC;
-    -fx-stroke-width: 1.5;
-}
-
-.graph-edge.camino {
-    -fx-stroke: #1B3C53;
-    -fx-stroke-width: 4;
-}
-
-.graph-edge:hover {
-    -fx-stroke: #F0A500;
-    -fx-stroke-width: 3;
-    -fx-cursor: hand;
 }
