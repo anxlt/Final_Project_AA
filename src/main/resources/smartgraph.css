@@ -1,0 +1,66 @@
+/* Vértices base */
+.graph-vertex {
+    -fx-background-color: #234C6A;
+    -fx-fill: #234C6A;
+    -fx-stroke: white;
+    -fx-stroke-width: 2;
+}
+
+.graph-vertex > .label {
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Origen */
+.graph-vertex.seleccionado-origen {
+    -fx-background-color: #F0A500;
+    -fx-fill: #F0A500;
+    -fx-stroke: #1B3C53;
+    -fx-stroke-width: 3;
+}
+
+.graph-vertex.seleccionado-origen > .label {
+    -fx-text-fill: #1B3C53;
+}
+
+/* Destino */
+.graph-vertex.seleccionado-destino {
+    -fx-background-color: #E84040;
+    -fx-fill: #E84040;
+    -fx-stroke: #1B3C53;
+    -fx-stroke-width: 3;
+}
+
+.graph-vertex.seleccionado-destino > .label {
+    -fx-text-fill: white;
+}
+
+/*  Nodo intermedio de ruta  */
+.graph-vertex.intermedio {
+    -fx-background-color: white;
+    -fx-fill: white;
+    -fx-stroke: #1B3C53;
+    -fx-stroke-width: 3;
+}
+
+.graph-vertex.intermedio > .label {
+    -fx-text-fill: #1B3C53;
+}
+
+/* Aristas  */
+.graph-edge {
+    -fx-stroke: #CCCCCC;
+    -fx-stroke-width: 1.5;
+}
+
+.graph-edge.camino {
+    -fx-stroke: #1B3C53;
+    -fx-stroke-width: 4;
+}
+
+.graph-edge:hover {
+    -fx-stroke: #F0A500;
+    -fx-stroke-width: 3;
+    -fx-cursor: hand;
+}

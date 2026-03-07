@@ -4,8 +4,6 @@ import com.rutas.logico.crud.ParadaCrud;
 import com.rutas.logico.crud.RutaCrud;
 import com.rutas.logico.excepciones.VistaNoCargadaException;
 import com.rutas.logico.modelo.Criterio;
-import com.rutas.logico.modelo.GrafoTransporte;
-import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.modelo.Ruta;
 import com.rutas.servicios.ServicioGrafo;
 import javafx.beans.property.SimpleStringProperty;
@@ -93,6 +91,11 @@ public class RutasController {
         listaFiltrada = new FilteredList<>(listaBase);
         tablaRutas.setItems(listaFiltrada);
 
+        for (TableColumn<?, ?> col : tablaRutas.getColumns()) {
+            col.setResizable(false);
+            col.setReorderable(false);
+        }
+
         tablaRutas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Ruta>() {
             @Override
             public void changed(ObservableValue<? extends Ruta> obs, Ruta oldVal, Ruta newVal) {
@@ -146,20 +149,6 @@ public class RutasController {
         Ruta seleccionada = tablaRutas.getSelectionModel().getSelectedItem();
         if (seleccionada == null) return;
 
-        GrafoTransporte copia = ServicioGrafo.get().copiar();
-        copia.eliminarRuta(seleccionada);
-        Parada paradaProblema = copia.esConexo();
-        if (paradaProblema != null) {
-            Alert bloqueo = new Alert(Alert.AlertType.WARNING);
-            bloqueo.setTitle("Operación bloqueada");
-            bloqueo.setHeaderText(null);
-            bloqueo.setContentText("No se puede eliminar la ruta \"" + seleccionada.getNombre()
-                    + "\" porque el grafo quedaría no conexo por la parada \""
-                    + paradaProblema.getNombreParada() + "\"");
-            bloqueo.showAndWait();
-            return;
-        }
-
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmar eliminación");
         alert.setHeaderText(null);
@@ -173,6 +162,16 @@ public class RutasController {
 
     private void abrirFormulario(Ruta ruta) {
         try {
+            // Validar ANTES de abrir la ventana
+            if (paradaCrud.listarParadas().size() < 2) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Validación");
+                alert.setHeaderText(null);
+                alert.setContentText("Se necesitan al menos dos paradas para registrar una ruta.");
+                alert.showAndWait();
+                return;
+            }
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegistroRuta.fxml"));
             Parent vista = loader.load();
 

@@ -87,6 +87,11 @@ public class ParadasController {
         listaFiltrada = new FilteredList<>(listaBase);
         tablaParadas.setItems(listaFiltrada);
 
+        for (TableColumn<?, ?> col : tablaParadas.getColumns()) {
+            col.setResizable(false);
+            col.setReorderable(false);
+        }
+
         tablaParadas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Parada>() {
             @Override
             public void changed(ObservableValue<? extends Parada> obs, Parada oldVal, Parada newVal) {

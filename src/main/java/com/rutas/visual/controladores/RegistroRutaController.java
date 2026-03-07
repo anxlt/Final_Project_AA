@@ -46,11 +46,6 @@ public class RegistroRutaController {
     }
 
     public void setParadas(List<Parada> paradas) {
-        if (paradas.size() < 2) {
-            mostrarAlerta("Se necesitan al menos dos paradas para registrar una ruta.");
-            cerrarVentana();
-            return;
-        }
         cmbOrigen.setItems(FXCollections.observableArrayList(paradas));
         cmbDestino.setItems(FXCollections.observableArrayList(paradas));
     }
@@ -63,14 +58,14 @@ public class RegistroRutaController {
         cmbOrigen.setValue(ruta.getOrigen());
         cmbDestino.setValue(ruta.getDestino());
 
-        Object tiempo     = ruta.getPeso(Criterio.TIEMPO);
-        Object costo      = ruta.getPeso(Criterio.COSTO);
-        Object distancia  = ruta.getPeso(Criterio.DISTANCIA);
+        Object tiempo      = ruta.getPeso(Criterio.TIEMPO);
+        Object costo       = ruta.getPeso(Criterio.COSTO);
+        Object distancia   = ruta.getPeso(Criterio.DISTANCIA);
         Object transbordos = ruta.getPeso(Criterio.TRANSBORDOS);
 
-        if (tiempo     instanceof Number) spnTiempo.getValueFactory().setValue(((Number) tiempo).doubleValue());
-        if (costo      instanceof Number) spnCosto.getValueFactory().setValue(((Number) costo).doubleValue());
-        if (distancia  instanceof Number) spnDistancia.getValueFactory().setValue(((Number) distancia).doubleValue());
+        if (tiempo      instanceof Number) spnTiempo.getValueFactory().setValue(((Number) tiempo).doubleValue());
+        if (costo       instanceof Number) spnCosto.getValueFactory().setValue(((Number) costo).doubleValue());
+        if (distancia   instanceof Number) spnDistancia.getValueFactory().setValue(((Number) distancia).doubleValue());
         if (transbordos instanceof Number) spnTransbordos.getValueFactory().setValue(((Number) transbordos).intValue());
     }
 
@@ -106,8 +101,7 @@ public class RegistroRutaController {
             Parada paradaProblema = copia.esConexo();
             if (paradaProblema != null) {
                 mostrarAlerta("No se puede aplicar esta modificación porque el grafo quedaría no conexo: "
-                        + " por la parada \"" + paradaProblema.getNombreParada()
-                        + "\"");
+                        + " por la parada \"" + paradaProblema.getNombreParada() + "\"");
                 return;
             }
             rutaCrud.modificarRuta(rutaAModificar, nombre, origen, destino, tiempo, costo, distancia, transbordos);

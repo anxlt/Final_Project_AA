@@ -1,73 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="556.0" prefWidth="947.0" style="-fx-background-color: #E3E3E3;"
-            xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.rutas.visual.controladores.PrincipalController">
+<AnchorPane prefHeight="556.0" prefWidth="947.0" style="-fx-background-color: #E3E3E3;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.PrincipalController">
 
    <!-- TOPBAR -->
-   <VBox prefHeight="72.0" prefWidth="947.0" spacing="4"
-         style="-fx-background-color: white; -fx-padding: 20 30 20 30;"
-         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+   <VBox prefHeight="72.0" prefWidth="947.0" spacing="4" style="-fx-background-color: white; -fx-padding: 20 30 20 30;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Bienvenido a NexRoute" />
       <Label style="-fx-font-size: 13px; -fx-text-fill: #888888;" text="Gestiona rutas y paradas de transporte de forma eficiente" />
    </VBox>
 
    <!-- TITULO -->
-   <Label layoutX="39.0" layoutY="119.0"
-          style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #456882;"
-          text="RESUMEN GENERAL"
-          AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="119.0" />
+   <Label layoutX="39.0" layoutY="119.0" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #456882;" text="RESUMEN GENERAL" AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="119.0" />
 
    <!-- TARJETA PARADAS -->
-   <VBox alignment="CENTER_LEFT" layoutX="39.0" layoutY="152.0"
-         prefHeight="164.0" prefWidth="260.0" spacing="6"
-         style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-         AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="152.0">
-      <Label fx:id="lblParadas" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="0" />
-      <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Paradas Existentes" />
+   <VBox layoutX="39.0" layoutY="152.0" prefHeight="169.0" prefWidth="260.0" spacing="6" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="152.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="233.0" prefWidth="220.0" spacing="16">
+         <ImageView fitHeight="126.0" fitWidth="92.0" pickOnBounds="true" preserveRatio="true">
+            <image><Image url="@/Images/parada.png" /></image>
+         </ImageView>
+         <VBox alignment="CENTER_LEFT" spacing="4" VBox.vgrow="ALWAYS">
+            <Label fx:id="lblParadas" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53; -fx-padding: 10 0 0 0;" text="0" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Paradas Existentes" />
+         </VBox>
+      </HBox>
    </VBox>
 
    <!-- TARJETA RUTAS -->
-   <VBox alignment="CENTER_LEFT" layoutX="338.0" layoutY="152.0"
-         prefHeight="164.0" prefWidth="260.0" spacing="6"
-         style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-         AnchorPane.leftAnchor="338.0" AnchorPane.topAnchor="151.0">
-      <Label fx:id="lblRutas" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="0" />
-      <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Rutas Disponibles" />
+   <VBox layoutX="338.0" layoutY="152.0" prefHeight="169.0" prefWidth="260.0" spacing="6" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="338.0" AnchorPane.topAnchor="151.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="165.0" prefWidth="220.0" spacing="16">
+         <ImageView fitHeight="129.0" fitWidth="93.0" pickOnBounds="true" preserveRatio="true">
+            <image><Image url="@/Images/ruta.png" /></image>
+         </ImageView>
+         <VBox alignment="CENTER_LEFT" spacing="4" VBox.vgrow="ALWAYS">
+            <Label fx:id="lblRutas" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53; -fx-padding: 10 0 0 0;" text="0" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Rutas Disponibles" />
+         </VBox>
+      </HBox>
    </VBox>
 
    <!-- TARJETA PRECIO -->
-   <VBox alignment="CENTER_LEFT" layoutX="636.0" layoutY="152.0"
-         prefHeight="164.0" prefWidth="260.0" spacing="6"
-         style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-         AnchorPane.leftAnchor="636.0" AnchorPane.topAnchor="152.0">
-      <Label fx:id="lblPrecio" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="0$" />
-      <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Precio Promedio" />
+   <VBox layoutX="636.0" layoutY="152.0" prefHeight="169.0" prefWidth="260.0" spacing="6" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="636.0" AnchorPane.topAnchor="152.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="128.0" prefWidth="245.0" spacing="16">
+         <VBox alignment="TOP_CENTER" style="-fx-padding: 14 0 0 0;">
+            <ImageView fitHeight="127.0" fitWidth="102.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+               <image><Image url="@/Images/dinero.png" /></image>
+            </ImageView>
+         </VBox>
+         <VBox alignment="CENTER_LEFT" prefHeight="85.0" prefWidth="95.0" spacing="4">
+            <Label fx:id="lblPrecio" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B3C53; -fx-padding: 10 0 0 0;" text="0$" />
+            <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="Precio Promedio" />
+         </VBox>
+      </HBox>
    </VBox>
 
    <!-- SEGMENTACION -->
-   <VBox fx:id="vboxSegmentacion" layoutX="39.0" layoutY="360.0"
-         prefHeight="172.0" prefWidth="505.0" spacing="14"
-         style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-         AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="360.0">
-
+   <VBox fx:id="vboxSegmentacion" layoutX="39.0" layoutY="360.0" prefHeight="172.0" prefWidth="505.0" spacing="14" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="360.0">
       <HBox alignment="CENTER_LEFT" spacing="10">
          <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1B3C53;" text="Segmentación de Transporte" />
-         <Label fx:id="lblTiposCount"
-                style="-fx-background-color: #E3E3E3; -fx-text-fill: #456882; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 20;"
-                text="0 tipos" />
+         <Label fx:id="lblTiposCount" style="-fx-background-color: #E3E3E3; -fx-text-fill: #456882; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 20;" text="0 tipos" />
       </HBox>
-
    </VBox>
 
    <!-- LOGO -->
-   <ImageView fitHeight="299.0" fitWidth="260.0" layoutX="620.0" layoutY="351.0"
-              pickOnBounds="true" preserveRatio="true">
+   <ImageView fitHeight="299.0" fitWidth="260.0" layoutX="620.0" layoutY="351.0" pickOnBounds="true" preserveRatio="true">
       <image>
          <Image url="@/Images/logoPrincipal.png" />
       </image>

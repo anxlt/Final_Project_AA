@@ -1,113 +1,93 @@
 package com.rutas.logico.modelo;
 
+import com.brunomnsilva.smartgraph.graph.Digraph;
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Vertex;
 import java.util.*;
 
 public class GrafoTransporte {
 
-    private final Map<Parada, List<Ruta>> listaAdyacencia;
-
-    public GrafoTransporte() {
-        this.listaAdyacencia = new HashMap<>();
-    }
+    private final Digraph<Parada, Ruta> grafo = new DigraphEdgeList<>();
+    private final Map<String, Vertex<Parada>> verticesPorCodigo = new HashMap<>();
 
     public void agregarParada(Parada parada) {
-        if (listaAdyacencia.containsKey(parada))
-            return;
-
-        listaAdyacencia.put(parada, new ArrayList<>());
+        if (verticesPorCodigo.containsKey(parada.getCodigo())) return;
+        Vertex<Parada> v = grafo.insertVertex(parada);
+        verticesPorCodigo.put(parada.getCodigo(), v);
     }
 
     public void eliminarParada(Parada parada) {
-        listaAdyacencia.remove(parada);
-        for(List<Ruta> rutas : listaAdyacencia.values())
-        {
-            rutas.removeIf(r -> r.getDestino().equals(parada));
-        }
-
-    }
-
-    public void agregarRuta(Ruta ruta) {
-        Parada origen = ruta.getOrigen();
-        listaAdyacencia.putIfAbsent(origen, new ArrayList<>());
-        listaAdyacencia.get(origen).add(ruta);
-    }
-
-    public void eliminarRuta(Ruta ruta){
-        Parada origen = ruta.getOrigen();
-        List<Ruta> rutas = listaAdyacencia.get(origen);
-        if(rutas != null)
-            rutas.remove(ruta);
-
-    }
-
-    public List<Ruta> getRutas(Parada parada){
-        return listaAdyacencia.getOrDefault(parada, new ArrayList<>());
-    }
-
-    public void modificarParada(Parada parada, String nuevoNombre, String nuevaUbicacion, TipoParada nuevoTipo) {
-        for (Parada p : listaAdyacencia.keySet()) {
-            if (p.equals(parada)) {
-                p.setNombreParada(nuevoNombre);
-                p.setUbicacion(nuevaUbicacion);
-                p.setTipo(nuevoTipo);
-            }
-        }
-    }
-
-    public void modificarRuta(Ruta rutaOriginal, Ruta rutaNueva) {
-
-        List<Ruta> rutasDelOrigen = listaAdyacencia.get(rutaOriginal.getOrigen());
-        if (rutasDelOrigen == null) return;
-
-        for (int i = 0; i < rutasDelOrigen.size(); i++) {
-            if (rutasDelOrigen.get(i).getId().equals(rutaOriginal.getId())) {
-
-                if (rutaOriginal.getOrigen().equals(rutaNueva.getOrigen())) {
-                    rutasDelOrigen.set(i, rutaNueva);
-                } else {
-                    rutasDelOrigen.remove(i);
-                    listaAdyacencia.putIfAbsent(rutaNueva.getOrigen(), new ArrayList<>());
-                    listaAdyacencia.get(rutaNueva.getOrigen()).add(rutaNueva);
-                }
-
-                listaAdyacencia.putIfAbsent(rutaNueva.getDestino(), new ArrayList<>());
-            }
-        }
+        Vertex<Parada> v = verticesPorCodigo.remove(parada.getCodigo());
+        if (v != null) grafo.removeVertex(v);
     }
 
     public boolean existeParada(Parada parada) {
-        return listaAdyacencia.containsKey(parada);
+        return verticesPorCodigo.containsKey(parada.getCodigo());
     }
 
     public Parada getParada(Parada clave) {
-        for (Parada p : listaAdyacencia.keySet())
-            if (p.equals(clave)) return p;
-        return null;
+        Vertex<Parada> v = verticesPorCodigo.get(clave.getCodigo());
+        return v != null ? v.element() : null;
     }
 
     public List<Parada> getParadas() {
-        return new ArrayList<>(listaAdyacencia.keySet());
+        List<Parada> lista = new ArrayList<>();
+        for (Vertex<Parada> v : grafo.vertices())
+            lista.add(v.element());
+        return lista;
     }
 
+    public void modificarParada(Parada parada, String nuevoNombre,
+                                String nuevaUbicacion, TipoParada nuevoTipo) {
+        Vertex<Parada> v = verticesPorCodigo.get(parada.getCodigo());
+        if (v == null) return;
+        v.element().setNombreParada(nuevoNombre);
+        v.element().setUbicacion(nuevaUbicacion);
+        v.element().setTipo(nuevoTipo);
+    }
+
+
+    public void agregarRuta(Ruta ruta) {
+        Vertex<Parada> origen  = verticesPorCodigo.get(ruta.getOrigen().getCodigo());
+        Vertex<Parada> destino = verticesPorCodigo.get(ruta.getDestino().getCodigo());
+        if (origen == null || destino == null) return;
+        grafo.insertEdge(origen, destino, ruta);
+    }
+
+    public void eliminarRuta(Ruta ruta) {
+        Edge<Ruta, Parada> edge = buscarEdge(ruta);
+        if (edge != null) grafo.removeEdge(edge);
+    }
+
+    public void modificarRuta(Ruta rutaOriginal, Ruta rutaNueva) {
+        eliminarRuta(rutaOriginal);
+        agregarRuta(rutaNueva);
+    }
+
+    public List<Ruta> getRutas(Parada parada) {
+        return obtenerVecinos(parada);
+    }
 
     public List<Ruta> obtenerVecinos(Parada parada) {
-        if (!listaAdyacencia.containsKey(parada))
-            return Collections.emptyList();
-        return Collections.unmodifiableList(listaAdyacencia.get(parada));
+        Vertex<Parada> v = verticesPorCodigo.get(parada.getCodigo());
+        if (v == null) return Collections.emptyList();
+        List<Ruta> resultado = new ArrayList<>();
+        for (Edge<Ruta, Parada> e : grafo.outboundEdges(v))
+            resultado.add(e.element());
+        return resultado;
     }
 
-    public Parada esConexo() {
-        if (listaAdyacencia.isEmpty())
-            return null;
-        if (listaAdyacencia.size() == 1)
-            return null;
 
-        Parada inicio = listaAdyacencia.keySet().iterator().next();
+    public Parada esConexo() {
+        if (grafo.numVertices() == 0 || grafo.numVertices() == 1) return null;
+
+        Vertex<Parada> inicio = grafo.vertices().iterator().next();
 
         Set<Parada> visitadosAdelante = new HashSet<>();
         Queue<Parada> cola = new LinkedList<>();
-        cola.add(inicio);
-        visitadosAdelante.add(inicio);
+        cola.add(inicio.element());
+        visitadosAdelante.add(inicio.element());
 
         while (!cola.isEmpty()) {
             Parada actual = cola.poll();
@@ -119,24 +99,23 @@ public class GrafoTransporte {
                 }
             }
         }
-        for (Parada p : listaAdyacencia.keySet()) {
-            if (!visitadosAdelante.contains(p))
-                return p;
+
+        for (Parada p : getParadas()) {
+            if (!visitadosAdelante.contains(p)) return p;
         }
 
         Map<Parada, List<Parada>> predecesores = new HashMap<>();
-        for (Parada p : listaAdyacencia.keySet()) {
-            predecesores.put(p, new ArrayList<>());
-        }
-        for (Parada p : listaAdyacencia.keySet()) {
-            for (Ruta ruta : obtenerVecinos(p)) {
-                predecesores.get(ruta.getDestino()).add(p);
-            }
+        for (Parada p : getParadas()) predecesores.put(p, new ArrayList<>());
+
+        for (Edge<Ruta, Parada> e : grafo.edges()) {
+            Parada dest = e.element().getDestino();
+            Parada orig = e.element().getOrigen();
+            predecesores.get(dest).add(orig);
         }
 
         Set<Parada> visitadosAtras = new HashSet<>();
-        cola.add(inicio);
-        visitadosAtras.add(inicio);
+        cola.add(inicio.element());
+        visitadosAtras.add(inicio.element());
 
         while (!cola.isEmpty()) {
             Parada actual = cola.poll();
@@ -148,20 +127,29 @@ public class GrafoTransporte {
             }
         }
 
-        for (Parada p : listaAdyacencia.keySet()) {
-            if (!visitadosAtras.contains(p))
-                return p;
+        for (Parada p : getParadas()) {
+            if (!visitadosAtras.contains(p)) return p;
         }
 
         return null;
     }
 
+
     public GrafoTransporte copiar() {
         GrafoTransporte copia = new GrafoTransporte();
-        for (Map.Entry<Parada, List<Ruta>> entrada : listaAdyacencia.entrySet()) {
-            copia.listaAdyacencia.put(entrada.getKey(), new ArrayList<>(entrada.getValue()));
-        }
+        for (Parada p : getParadas()) copia.agregarParada(p);
+        for (Edge<Ruta, Parada> e : grafo.edges()) copia.agregarRuta(e.element());
         return copia;
     }
 
+
+    private Edge<Ruta, Parada> buscarEdge(Ruta ruta) {
+        for (Edge<Ruta, Parada> e : grafo.edges())
+            if (e.element().getId().equals(ruta.getId())) return e;
+        return null;
+    }
+
+    public Digraph<Parada, Ruta> getGrafo() {
+        return grafo;
+    }
 }

@@ -1,147 +1,204 @@
 package com.rutas.visual.controladores;
 
+import com.brunomnsilva.smartgraph.graph.*;
+import com.brunomnsilva.smartgraph.graphview.*;
 import com.rutas.logico.algoritmos.Dijkstra;
 import com.rutas.logico.modelo.Criterio;
 import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.modelo.Ruta;
 import com.rutas.servicios.ServicioGrafo;
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MapaController {
 
-    @FXML private Pane canvasPane;
-    @FXML private Canvas canvas;
-    @FXML private ComboBox<Parada> cmbOrigen;
-    @FXML private ComboBox<Parada> cmbDestino;
+    private static final String ESTILO_BASE       = "-fx-fill: #234C6A; -fx-stroke: #456882; -fx-stroke-width: 2;";
+    private static final String ESTILO_ORIGEN     = "-fx-fill: #456882; -fx-stroke: white; -fx-stroke-width: 4;";
+    private static final String ESTILO_DESTINO    = "-fx-fill: #1B3C53; -fx-stroke: #E3E3E3; -fx-stroke-width: 4;";
+    private static final String ESTILO_INTERMEDIO = "-fx-fill: #E3E3E3; -fx-stroke: #234C6A; -fx-stroke-width: 3;";
+
+    @FXML private AnchorPane rootPane;
     @FXML private ComboBox<Criterio> cmbCriterio;
-    @FXML private Label lblParadas;
     @FXML private Label lblTiempo;
     @FXML private Label lblCosto;
     @FXML private Label lblDistancia;
     @FXML private Label lblTransbordos;
+    @FXML private Label lblOrigen;
+    @FXML private Label lblDestino;
 
-    private List<Parada> paradas = new ArrayList<>();
-    private List<Ruta> rutas = new ArrayList<>();
+    private SmartGraphPanel<Parada, Ruta> graphView;
+    private Digraph<Parada, Ruta> digraph;
+
+    private Parada paradaOrigen  = null;
+    private Parada paradaDestino = null;
     private List<Parada> rutaOptima = new ArrayList<>();
-    private Map<Parada, double[]> posiciones = new HashMap<>();
+
 
     @FXML
     public void initialize() {
         cmbCriterio.setItems(FXCollections.observableArrayList(Criterio.values()));
+        configurarCeldaCriterio();
+        cmbCriterio.getSelectionModel().selectFirst();
+        cargarGrafo();
+    }
 
-        cmbCriterio.setCellFactory(new Callback<ListView<Criterio>, ListCell<Criterio>>() {
-            @Override
-            public ListCell<Criterio> call(ListView<Criterio> lv) {
-                return new ListCell<Criterio>() {
-                    @Override
-                    protected void updateItem(Criterio item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setText(null);
-                        } else {
-                            setText(item.name().charAt(0) + item.name().substring(1).toLowerCase());
-                            setStyle("-fx-text-fill: black;");
-                        }
-                    }
-                };
-            }
-        });
-
-        cmbCriterio.setButtonCell(new ListCell<Criterio>() {
+    private void configurarCeldaCriterio() {
+        Callback<ListView<Criterio>, ListCell<Criterio>> factory = lv -> new ListCell<>() {
             @Override
             protected void updateItem(Criterio item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setText(null);
-                } else {
-                    setText(item.name().charAt(0) + item.name().substring(1).toLowerCase());
-                    setStyle("-fx-text-fill: white; -fx-background-color: #1B3C53;");
-                }
+                setText((item == null || empty) ? null
+                        : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                if (item != null) setStyle("-fx-text-fill: black;");
             }
-        });
-
-        cmbCriterio.getSelectionModel().selectFirst();
-
-        cmbOrigen.setButtonCell(new ListCell<Parada>() {
+        };
+        cmbCriterio.setCellFactory(factory);
+        cmbCriterio.setButtonCell(new ListCell<>() {
             @Override
-            protected void updateItem(Parada item, boolean empty) {
+            protected void updateItem(Criterio item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setText(null);
-                } else {
-                    setText(item.getNombreParada());
-                    setStyle("-fx-text-fill: white; -fx-background-color: #234C6A;");
-                }
+                setText((item == null || empty) ? null
+                        : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                setStyle("-fx-text-fill: white; -fx-background-color: #1B3C53;");
             }
         });
-
-        cmbDestino.setButtonCell(new ListCell<Parada>() {
-            @Override
-            protected void updateItem(Parada item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setText(null);
-                } else {
-                    setText(item.getNombreParada());
-                    setStyle("-fx-text-fill: white; -fx-background-color: #234C6A;");
-                }
-            }
-        });
-
-        canvasPane.widthProperty().addListener((obs, oldVal, newVal) -> refrescar());
-        canvasPane.heightProperty().addListener((obs, oldVal, newVal) -> refrescar());
-
-        refrescar();
     }
 
     public void refrescar() {
-        paradas = ServicioGrafo.get().getParadas();
-        rutas = new ArrayList<>();
-        for (Parada p : paradas) {
-            rutas.addAll(ServicioGrafo.get().getRutas(p));
+        paradaOrigen  = null;
+        paradaDestino = null;
+        rutaOptima    = new ArrayList<>();
+        limpiarResultados();
+        actualizarLabels();
+        cargarGrafo();
+    }
+
+    private void cargarGrafo() {
+        if (graphView != null) rootPane.getChildren().remove(graphView);
+
+        digraph = new DigraphEdgeList<>();
+        for (Parada p : ServicioGrafo.get().getParadas()) digraph.insertVertex(p);
+
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+                Vertex<Parada> origen  = encontrarVertice(r.getOrigen());
+                Vertex<Parada> destino = encontrarVertice(r.getDestino());
+                if (origen != null && destino != null) {
+                    try { digraph.insertEdge(origen, destino, r); } catch (Exception ignored) {}
+                }
+            }
         }
 
-        cmbOrigen.setItems(FXCollections.observableArrayList(paradas));
-        cmbDestino.setItems(FXCollections.observableArrayList(paradas));
+        // Propiedades: aristas curvas para evitar la "lenteja" en rutas bidireccionales
+        SmartGraphProperties props = new SmartGraphProperties(
+                "vertex.allow.userMove = true\n" +
+                        "vertex.radius = 20\n" +
+                        "edge.label = false\n" +
+                        "edge.arrow = true\n" +
+                        "edge.label.nodes = false\n" +
+                        "edge.type = curve\n"
+        );
 
+        graphView = new SmartGraphPanel<>(digraph, props, new SmartCircularSortedPlacementStrategy());
+        graphView.setAutomaticLayout(true);
+        graphView.setVertexDoubleClickAction(v -> evaluarSeleccion(v.getUnderlyingVertex().element()));
+
+        AnchorPane.setTopAnchor(graphView, 0.0);
+        AnchorPane.setLeftAnchor(graphView, 0.0);
+        AnchorPane.setRightAnchor(graphView, 0.0);
+        AnchorPane.setBottomAnchor(graphView, 70.0);
+        rootPane.getChildren().add(0, graphView);
+
+        Platform.runLater(() -> {
+            graphView.init();
+            PauseTransition pause = new PauseTransition(Duration.millis(500));
+            pause.setOnFinished(e -> {
+                graphView.update();
+                aplicarEstiloBase();
+                registrarTooltipsAristas();
+            });
+            pause.play();
+        });
+    }
+
+    private void aplicarEstiloBase() {
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            aplicarEstiloVertice(p, ESTILO_BASE);
+        }
+    }
+
+    private void aplicarEstiloVertice(Parada parada, String estilo) {
+        SmartStylableNode stylable = graphView.getStylableVertex(parada);
+        if (stylable instanceof Node nodo) {
+            nodo.setStyle(estilo);
+            if (nodo instanceof javafx.scene.Parent parent) {
+                for (Node hijo : parent.getChildrenUnmodifiable()) {
+                    hijo.setStyle(estilo);
+                }
+            }
+        }
+    }
+
+    private void evaluarSeleccion(Parada parada) {
+        if (paradaOrigen != null && paradaOrigen.equals(parada)) {
+            aplicarEstiloVertice(parada, ESTILO_BASE);
+            paradaOrigen = null;
+            lblOrigen.setText("Ninguno");
+            limpiarEstilosRuta();
+            return;
+        }
+        if (paradaDestino != null && paradaDestino.equals(parada)) {
+            aplicarEstiloVertice(parada, ESTILO_BASE);
+            paradaDestino = null;
+            lblDestino.setText("Ninguno");
+            return;
+        }
+        if (paradaOrigen == null) {
+            paradaOrigen = parada;
+            aplicarEstiloVertice(parada, ESTILO_ORIGEN);
+            lblOrigen.setText(parada.getNombreParada());
+            return;
+        }
+        if (paradaDestino == null) {
+            paradaDestino = parada;
+            aplicarEstiloVertice(parada, ESTILO_DESTINO);
+            lblDestino.setText(parada.getNombreParada());
+            return;
+        }
+        limpiarSeleccion();
+        paradaOrigen = parada;
+        aplicarEstiloVertice(parada, ESTILO_ORIGEN);
+        lblOrigen.setText(parada.getNombreParada());
     }
 
     @FXML
     public void handleBuscar(ActionEvent e) {
-        Parada origen = cmbOrigen.getValue();
-        Parada destino = cmbDestino.getValue();
         Criterio criterio = cmbCriterio.getValue();
 
-        if (origen == null || destino == null || criterio == null) {
-            mostrarAlerta("Selección incompleta", "Por favor selecciona origen, destino y criterio.");
+        if (paradaOrigen == null || paradaDestino == null || criterio == null) {
+            mostrarAlerta("Selección incompleta", "Por favor haz doble click en un origen y un destino en el mapa.");
             return;
         }
-
-        if (origen.equals(destino)) {
+        if (paradaOrigen.equals(paradaDestino)) {
             mostrarAlerta("Paradas iguales", "El origen y el destino no pueden ser la misma parada.");
             return;
         }
-
-        if (paradas.size() < 2) {
+        if (ServicioGrafo.get().getParadas().size() < 2) {
             mostrarAlerta("Sin paradas", "Debe haber al menos dos paradas para buscar una ruta.");
             return;
         }
+
         Parada paradaDesconectada = ServicioGrafo.get().esConexo();
         if (paradaDesconectada != null) {
             mostrarAlerta("Grafo no conexo",
@@ -150,44 +207,28 @@ public class MapaController {
             return;
         }
 
-        List<Parada> camino = Dijkstra.ejecutar(ServicioGrafo.get(), origen, destino, criterio);
+        List<Parada> camino = Dijkstra.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
 
         if (camino == null || camino.isEmpty()) {
             rutaOptima = new ArrayList<>();
-            //dibujar();
-            lblParadas.setText("Sin ruta disponible");
-            lblTiempo.setText("-");
-            lblCosto.setText("-");
-            lblDistancia.setText("-");
-            lblTransbordos.setText("-");
-            mostrarAlerta("Sin ruta", "No existe ruta entre " + origen.getNombreParada()
-                    + " y " + destino.getNombreParada() + " con el criterio seleccionado.");
+            limpiarEstilosRuta();
+            limpiarResultados();
+            mostrarAlerta("Sin ruta", "No existe ruta entre " + paradaOrigen.getNombreParada()
+                    + " y " + paradaDestino.getNombreParada() + " con el criterio seleccionado.");
             return;
         }
 
         rutaOptima = camino;
-        //dibujar();
-
-        StringBuilder sbRuta = new StringBuilder();
-        for (int i = 0; i < camino.size(); i++) {
-            if (i > 0) sbRuta.append(" → ");
-            sbRuta.append(camino.get(i).getNombreParada());
-        }
-        lblParadas.setText(sbRuta.toString());
+        estilizarRutaOptima();
 
         double totalTiempo = 0, totalCosto = 0, totalDistancia = 0, totalTransbordos = 0;
-
         for (int i = 0; i < camino.size() - 1; i++) {
-            Parada desde = camino.get(i);
-            Parada hacia = camino.get(i + 1);
-
-            for (Ruta ruta : ServicioGrafo.get().obtenerVecinos(desde)) {
-                if (ruta.getDestino().equals(hacia)) {
+            for (Ruta ruta : ServicioGrafo.get().obtenerVecinos(camino.get(i))) {
+                if (ruta.getDestino().equals(camino.get(i + 1))) {
                     Object pt  = ruta.getPeso(Criterio.TIEMPO);
                     Object pc  = ruta.getPeso(Criterio.COSTO);
                     Object pd  = ruta.getPeso(Criterio.DISTANCIA);
                     Object ptr = ruta.getPeso(Criterio.TRANSBORDOS);
-
                     if (pt  instanceof Number) totalTiempo      += ((Number) pt).doubleValue();
                     if (pc  instanceof Number) totalCosto       += ((Number) pc).doubleValue();
                     if (pd  instanceof Number) totalDistancia   += ((Number) pd).doubleValue();
@@ -202,6 +243,92 @@ public class MapaController {
         lblDistancia.setText(String.format("%.1f km", totalDistancia));
         lblTransbordos.setText(String.valueOf((int) totalTransbordos));
     }
+
+    @FXML
+    public void handleLimpiar(ActionEvent e) {
+        limpiarSeleccion();
+        limpiarResultados();
+    }
+
+
+    private void registrarTooltipsAristas() {
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+                try {
+                    SmartStylableNode edge = graphView.getStylableEdge(r);
+                    if (!(edge instanceof Node nodoEdge)) continue;
+                    String texto = r.getNombre() + "\n"
+                            + "Tiempo: "      + r.getPeso(Criterio.TIEMPO)      + " min\n"
+                            + "Costo: $"      + r.getPeso(Criterio.COSTO)       + "\n"
+                            + "Distancia: "   + r.getPeso(Criterio.DISTANCIA)   + " km\n"
+                            + "Transbordos: " + r.getPeso(Criterio.TRANSBORDOS);
+                    Tooltip tooltip = new Tooltip(texto);
+                    tooltip.setStyle("-fx-font-size: 11px; -fx-background-color: #1B3C53; -fx-text-fill: white;");
+                    Tooltip.install(nodoEdge, tooltip);
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    private void estilizarRutaOptima() {
+        limpiarEstilosRuta();
+        for (int i = 0; i < rutaOptima.size() - 1; i++) {
+            Parada desde = rutaOptima.get(i);
+            Parada hacia = rutaOptima.get(i + 1);
+            if (i > 0) aplicarEstiloVertice(desde, ESTILO_INTERMEDIO);
+            for (Ruta r : ServicioGrafo.get().getRutas(desde)) {
+                if (r.getDestino().equals(hacia)) {
+                    SmartStylableNode arista = graphView.getStylableEdge(r);
+                    if (arista != null) arista.addStyleClass("camino");
+                    break;
+                }
+            }
+        }
+        graphView.update();
+    }
+
+    private void limpiarEstilosRuta() {
+        if (graphView == null) return;
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            if (paradaOrigen  != null && paradaOrigen.equals(p))  continue;
+            if (paradaDestino != null && paradaDestino.equals(p)) continue;
+            aplicarEstiloVertice(p, ESTILO_BASE);
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+                SmartStylableNode arista = graphView.getStylableEdge(r);
+                if (arista != null) arista.removeStyleClass("camino");
+            }
+        }
+        rutaOptima = new ArrayList<>();
+        graphView.update();
+    }
+
+    private void limpiarSeleccion() {
+        if (paradaOrigen != null)  { aplicarEstiloVertice(paradaOrigen,  ESTILO_BASE); paradaOrigen  = null; }
+        if (paradaDestino != null) { aplicarEstiloVertice(paradaDestino, ESTILO_BASE); paradaDestino = null; }
+        limpiarEstilosRuta();
+        actualizarLabels();
+    }
+
+
+    private Vertex<Parada> encontrarVertice(Parada parada) {
+        for (Vertex<Parada> v : digraph.vertices()) {
+            if (v.element().equals(parada)) return v;
+        }
+        return null;
+    }
+
+    private void actualizarLabels() {
+        lblOrigen.setText(paradaOrigen   != null ? paradaOrigen.getNombreParada()  : "Ninguno");
+        lblDestino.setText(paradaDestino != null ? paradaDestino.getNombreParada() : "Ninguno");
+    }
+
+    private void limpiarResultados() {
+        lblTiempo.setText("-");
+        lblCosto.setText("-");
+        lblDistancia.setText("-");
+        lblTransbordos.setText("-");
+    }
+
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);

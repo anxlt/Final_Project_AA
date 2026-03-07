@@ -10,10 +10,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import java.net.URL?>
 <AnchorPane prefHeight="556.0" prefWidth="947.0" style="-fx-background-color: #E3E3E3;"
-            xmlns="http://javafx.com/javafx/25"
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.rutas.visual.controladores.ParadasController">
+
+    <stylesheets>
+        <URL value="@/tablas.css" />
+    </stylesheets>
 
     <!-- TOPBAR -->
     <HBox alignment="CENTER_LEFT" prefHeight="72.0"
@@ -56,16 +61,16 @@
                    style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-table-cell-border-color: #F0F0F0;"
                    VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn fx:id="colId" prefWidth="65.0">
+                <TableColumn fx:id="colId" prefWidth="80.0">
                     <graphic><Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #A0AABB; -fx-padding: 8 0;" text="ID" /></graphic>
                 </TableColumn>
-                <TableColumn fx:id="colNombre" prefWidth="210.0">
+                <TableColumn fx:id="colNombre" prefWidth="280.0">
                     <graphic><Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #A0AABB; -fx-padding: 8 0;" text="NOMBRE" /></graphic>
                 </TableColumn>
-                <TableColumn fx:id="colDireccion" prefWidth="240.0">
+                <TableColumn fx:id="colDireccion" prefWidth="320.0">
                     <graphic><Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #A0AABB; -fx-padding: 8 0;" text="DIRECCIÓN" /></graphic>
                 </TableColumn>
-                <TableColumn fx:id="colTipo" prefWidth="130.0">
+                <TableColumn fx:id="colTipo" prefWidth="188.0">
                     <graphic><Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #A0AABB; -fx-padding: 8 0;" text="TIPO" /></graphic>
                 </TableColumn>
             </columns>

@@ -1,0 +1,35 @@
+.table-row-cell:even {
+    -fx-background-color: #EBEBEB;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #FFFFFF;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #456882;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: white;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #E8EEF2;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #234C6A;
+    -fx-font-size: 12px;
+    -fx-border-color: transparent;
+    -fx-padding: 6 10;
+}
+
+/* Oculta la columna fantasma extra */
+.table-view .filler {
+    -fx-background-color: white;
+}
+
+.table-view .column-header-background .filler {
+    -fx-background-color: #EBEBEB;
+}
