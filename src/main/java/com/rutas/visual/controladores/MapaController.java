@@ -27,6 +27,8 @@ public class MapaController {
     private static final String ESTILO_ORIGEN     = "-fx-fill: #456882; -fx-stroke: white; -fx-stroke-width: 4;";
     private static final String ESTILO_DESTINO    = "-fx-fill: #1B3C53; -fx-stroke: #E3E3E3; -fx-stroke-width: 4;";
     private static final String ESTILO_INTERMEDIO = "-fx-fill: #E3E3E3; -fx-stroke: #234C6A; -fx-stroke-width: 3;";
+    private static final String ESTILO_ARISTA_BASE   = "-fx-stroke: #CCCCCC; -fx-stroke-width: 1.5; -fx-fill: transparent;";
+    private static final String ESTILO_ARISTA_CAMINO = "-fx-stroke: #F0A500; -fx-stroke-width: 4; -fx-fill: transparent;";
 
     @FXML private AnchorPane rootPane;
     @FXML private ComboBox<Criterio> cmbCriterio;
@@ -44,7 +46,6 @@ public class MapaController {
     private Parada paradaDestino = null;
     private List<Parada> rutaOptima = new ArrayList<>();
 
-
     @FXML
     public void initialize() {
         cmbCriterio.setItems(FXCollections.observableArrayList(Criterio.values()));
@@ -58,8 +59,7 @@ public class MapaController {
             @Override
             protected void updateItem(Criterio item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((item == null || empty) ? null
-                        : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                setText((item == null || empty) ? null : item.name().charAt(0) + item.name().substring(1).toLowerCase());
                 if (item != null) setStyle("-fx-text-fill: black;");
             }
         };
@@ -68,8 +68,7 @@ public class MapaController {
             @Override
             protected void updateItem(Criterio item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((item == null || empty) ? null
-                        : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                setText((item == null || empty) ? null : item.name().charAt(0) + item.name().substring(1).toLowerCase());
                 setStyle("-fx-text-fill: white; -fx-background-color: #1B3C53;");
             }
         });
@@ -100,17 +99,10 @@ public class MapaController {
             }
         }
 
-        // Propiedades: aristas curvas para evitar la "lenteja" en rutas bidireccionales
-        SmartGraphProperties props = new SmartGraphProperties(
-                "vertex.allow.userMove = true\n" +
-                        "vertex.radius = 20\n" +
-                        "edge.label = false\n" +
-                        "edge.arrow = true\n" +
-                        "edge.label.nodes = false\n" +
-                        "edge.type = curve\n"
-        );
-
+        SmartGraphProperties props = new SmartGraphProperties(getClass().getResourceAsStream("/smartgraph.properties"));
         graphView = new SmartGraphPanel<>(digraph, props, new SmartCircularSortedPlacementStrategy());
+        graphView.getStylesheets().clear();
+        graphView.getStylesheets().add(getClass().getResource("/smartgraph.css").toExternalForm());
         graphView.setAutomaticLayout(true);
         graphView.setVertexDoubleClickAction(v -> evaluarSeleccion(v.getUnderlyingVertex().element()));
 
@@ -126,6 +118,7 @@ public class MapaController {
             pause.setOnFinished(e -> {
                 graphView.update();
                 aplicarEstiloBase();
+                aplicarEstiloAristasBase();
                 registrarTooltipsAristas();
             });
             pause.play();
@@ -133,21 +126,33 @@ public class MapaController {
     }
 
     private void aplicarEstiloBase() {
-        for (Parada p : ServicioGrafo.get().getParadas()) {
-            aplicarEstiloVertice(p, ESTILO_BASE);
-        }
+        for (Parada p : ServicioGrafo.get().getParadas()) aplicarEstiloVertice(p, ESTILO_BASE);
+    }
+
+    private void aplicarEstiloAristasBase() {
+        for (Parada p : ServicioGrafo.get().getParadas())
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
     }
 
     private void aplicarEstiloVertice(Parada parada, String estilo) {
         SmartStylableNode stylable = graphView.getStylableVertex(parada);
         if (stylable instanceof Node nodo) {
             nodo.setStyle(estilo);
-            if (nodo instanceof javafx.scene.Parent parent) {
-                for (Node hijo : parent.getChildrenUnmodifiable()) {
-                    hijo.setStyle(estilo);
-                }
-            }
+            if (nodo instanceof javafx.scene.Parent parent)
+                for (Node hijo : parent.getChildrenUnmodifiable()) hijo.setStyle(estilo);
         }
+    }
+
+    private void aplicarEstiloArista(Ruta ruta, String estilo) {
+        SmartStylableNode arista = graphView.getStylableEdge(ruta);
+        if (arista instanceof Node nodoArista) aplicarEstiloRecursivo(nodoArista, estilo);
+    }
+
+    private void aplicarEstiloRecursivo(Node node, String estilo) {
+        if (node instanceof javafx.scene.shape.Shape shape && !(shape instanceof javafx.scene.shape.Circle))
+            shape.setStyle(estilo);
+        if (node instanceof javafx.scene.Parent parent)
+            for (Node hijo : parent.getChildrenUnmodifiable()) aplicarEstiloRecursivo(hijo, estilo);
     }
 
     private void evaluarSeleccion(Parada parada) {
@@ -201,9 +206,8 @@ public class MapaController {
 
         Parada paradaDesconectada = ServicioGrafo.get().esConexo();
         if (paradaDesconectada != null) {
-            mostrarAlerta("Grafo no conexo",
-                    "La parada \"" + paradaDesconectada.getNombreParada()
-                            + "\" no tiene entrada o salida. El grafo no es completamente conexo.");
+            mostrarAlerta("Grafo no conexo", "La parada \"" + paradaDesconectada.getNombreParada()
+                    + "\" no tiene entrada o salida. El grafo no es completamente conexo.");
             return;
         }
 
@@ -250,7 +254,6 @@ public class MapaController {
         limpiarResultados();
     }
 
-
     private void registrarTooltipsAristas() {
         for (Parada p : ServicioGrafo.get().getParadas()) {
             for (Ruta r : ServicioGrafo.get().getRutas(p)) {
@@ -271,35 +274,31 @@ public class MapaController {
     }
 
     private void estilizarRutaOptima() {
+        List<Parada> camino = new ArrayList<>(rutaOptima);
         limpiarEstilosRuta();
-        for (int i = 0; i < rutaOptima.size() - 1; i++) {
-            Parada desde = rutaOptima.get(i);
-            Parada hacia = rutaOptima.get(i + 1);
+        for (int i = 0; i < camino.size() - 1; i++) {
+            Parada desde = camino.get(i);
+            Parada hacia = camino.get(i + 1);
             if (i > 0) aplicarEstiloVertice(desde, ESTILO_INTERMEDIO);
             for (Ruta r : ServicioGrafo.get().getRutas(desde)) {
                 if (r.getDestino().equals(hacia)) {
-                    SmartStylableNode arista = graphView.getStylableEdge(r);
-                    if (arista != null) arista.addStyleClass("camino");
+                    aplicarEstiloArista(r, ESTILO_ARISTA_CAMINO);
                     break;
                 }
             }
         }
-        graphView.update();
     }
 
     private void limpiarEstilosRuta() {
         if (graphView == null) return;
         for (Parada p : ServicioGrafo.get().getParadas()) {
-            if (paradaOrigen  != null && paradaOrigen.equals(p))  continue;
+            if (paradaOrigen  != null && paradaOrigen.equals(p)) continue;
             if (paradaDestino != null && paradaDestino.equals(p)) continue;
             aplicarEstiloVertice(p, ESTILO_BASE);
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
-                SmartStylableNode arista = graphView.getStylableEdge(r);
-                if (arista != null) arista.removeStyleClass("camino");
-            }
         }
+        for (Parada p : ServicioGrafo.get().getParadas())
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
         rutaOptima = new ArrayList<>();
-        graphView.update();
     }
 
     private void limpiarSeleccion() {
@@ -309,11 +308,9 @@ public class MapaController {
         actualizarLabels();
     }
 
-
     private Vertex<Parada> encontrarVertice(Parada parada) {
-        for (Vertex<Parada> v : digraph.vertices()) {
+        for (Vertex<Parada> v : digraph.vertices())
             if (v.element().equals(parada)) return v;
-        }
         return null;
     }
 
