@@ -9,6 +9,18 @@ import java.util.*;
 
 public class Dijkstra {
 
+
+    /*
+        Nombre: ejecutar
+        Argumentos:
+            (GrafoTransporte) grafo: Representa el grafo dirigido sobre el que se realiza la búsqueda.
+            (Parada) origen: Representa la parada desde donde inicia el recorrido.
+            (Parada) destino: Representa la parada a la que se desea llegar.
+            (Criterio) criterio: Representa el peso que se utilizará para calcular la ruta óptima (tiempo, costo, distancia o transbordos).
+        Objetivo: Calcular la ruta óptima entre dos paradas usando el algoritmo de Dijkstra según el criterio indicado.
+        Retorno: (List<Parada>) Retorna la lista ordenada de paradas que conforman el camino más corto, o null si no existe ruta.
+     */
+
     public static List<Parada> ejecutar(GrafoTransporte grafo, Parada origen, Parada destino, Criterio criterio) {
 
         Map<Parada, Double> costos   = new HashMap<>();
