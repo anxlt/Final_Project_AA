@@ -64,9 +64,24 @@ public class RegistroParadaController {
         cerrar();
     }
 
+    /*
+        Nombre: cerrar
+        Argumentos: Ninguno.
+        Objetivo: Cerrar la ventana modal del formulario de registro de parada.
+        Retorno: (void) No retorna valor.
+     */
+
     private void cerrar() {
         ((Stage) txtNombre.getScene().getWindow()).close();
     }
+
+    /*
+        Nombre: mostrarAlerta
+        Argumentos:
+            (String) mensaje: Representa el contenido del mensaje de validación a mostrar.
+        Objetivo: Mostrar un diálogo de advertencia con un mensaje de validación al usuario.
+        Retorno: (void) No retorna valor.
+     */
 
     private void mostrarAlerta(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

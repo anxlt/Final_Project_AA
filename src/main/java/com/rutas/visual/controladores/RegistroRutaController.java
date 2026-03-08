@@ -122,10 +122,25 @@ public class RegistroRutaController {
         cerrarVentana();
     }
 
+    /*
+        Nombre: cerrarVentana
+        Argumentos: Ninguno.
+        Objetivo: Cerrar la ventana modal del formulario de registro de ruta.
+        Retorno: (void) No retorna valor.
+     */
+
     private void cerrarVentana() {
         Stage stage = (Stage) txtNombre.getScene().getWindow();
         stage.close();
     }
+
+    /*
+        Nombre: mostrarAlerta
+        Argumentos:
+            (String) mensaje: Representa el contenido del mensaje de validación a mostrar.
+        Objetivo: Mostrar un diálogo de advertencia con un mensaje de validación al usuario.
+        Retorno: (void) No retorna valor.
+     */
 
     private void mostrarAlerta(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

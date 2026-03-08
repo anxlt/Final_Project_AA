@@ -115,6 +115,14 @@ public class RutasController {
         actualizarTabla();
     }
 
+    /*
+        Nombre: aplicarFiltros
+        Argumentos: Ninguno.
+        Objetivo: Filtrar la tabla de rutas según el texto ingresado en el campo de búsqueda,
+                  comparando contra el ID, nombre, origen y destino de cada ruta.
+        Retorno: (void) No retorna valor.
+     */
+
     private void aplicarFiltros() {
         final String textoBusqueda = txtBuscar.getText() == null ? "" : txtBuscar.getText().toLowerCase().trim();
 
@@ -160,6 +168,15 @@ public class RutasController {
         }
     }
 
+    /*
+        Nombre: abrirFormulario
+        Argumentos:
+            (Ruta) ruta: Representa la ruta a modificar, o null si se desea registrar una nueva.
+        Objetivo: Validar que existan al menos dos paradas y abrir el formulario modal de
+                  registro o modificación de ruta, actualizando la tabla al cerrar.
+        Retorno: (void) No retorna valor.
+     */
+
     private void abrirFormulario(Ruta ruta) {
         try {
             // Validar ANTES de abrir la ventana
@@ -194,6 +211,14 @@ public class RutasController {
             throw new VistaNoCargadaException("/view/RegistroRuta.fxml", ex);
         }
     }
+
+    /*
+        Nombre: actualizarTabla
+        Argumentos: Ninguno.
+        Objetivo: Recargar los datos de la tabla de rutas desde el grafo, reaplica los filtros
+                  y restaura la selección previa si la ruta aún existe.
+        Retorno: (void) No retorna valor.
+     */
 
     private void actualizarTabla() {
         Ruta seleccionadaAntes = tablaRutas.getSelectionModel().getSelectedItem();

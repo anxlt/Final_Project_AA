@@ -54,6 +54,14 @@ public class MapaController {
         cargarGrafo();
     }
 
+    /*
+        Nombre: configurarCeldaCriterio
+        Argumentos: Ninguno.
+        Objetivo: Configurar el ComboBox de criterios para mostrar los valores del enum
+                  con la primera letra en mayúscula y el resto en minúscula.
+        Retorno: (void) No retorna valor.
+     */
+
     private void configurarCeldaCriterio() {
         Callback<ListView<Criterio>, ListCell<Criterio>> factory = lv -> new ListCell<>() {
             @Override
@@ -82,6 +90,15 @@ public class MapaController {
         actualizarLabels();
         cargarGrafo();
     }
+
+    /*
+        Nombre: cargarGrafo
+        Argumentos: Ninguno.
+        Objetivo: Construir el grafo visual SmartGraph a partir de los datos del ServicioGrafo,
+                  configurar el panel con propiedades y estilos, y registrar el evento
+                  de doble click para seleccionar paradas.
+        Retorno: (void) No retorna valor.
+     */
 
     private void cargarGrafo() {
         if (graphView != null) rootPane.getChildren().remove(graphView);
@@ -125,14 +142,38 @@ public class MapaController {
         });
     }
 
+    /*
+        Nombre: aplicarEstiloBase
+        Argumentos: Ninguno.
+        Objetivo: Restablecer el estilo visual predeterminado en todos los vértices del grafo.
+        Retorno: (void) No retorna valor.
+     */
+
     private void aplicarEstiloBase() {
         for (Parada p : ServicioGrafo.get().getParadas()) aplicarEstiloVertice(p, ESTILO_BASE);
     }
+
+    /*
+        Nombre: aplicarEstiloAristasBase
+        Argumentos: Ninguno.
+        Objetivo: Restablecer el estilo visual predeterminado en todas las aristas del grafo.
+        Retorno: (void) No retorna valor.
+     */
 
     private void aplicarEstiloAristasBase() {
         for (Parada p : ServicioGrafo.get().getParadas())
             for (Ruta r : ServicioGrafo.get().getRutas(p)) aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
     }
+
+    /*
+        Nombre: aplicarEstiloVertice
+        Argumentos:
+            (Parada) parada: Representa la parada cuyo vértice visual se desea estilizar.
+            (String) estilo: Representa el string de estilo CSS inline que se aplicará al vértice.
+        Objetivo: Aplicar un estilo CSS inline al vértice SmartGraph correspondiente a una parada,
+                  incluyendo sus nodos hijos.
+        Retorno: (void) No retorna valor.
+     */
 
     private void aplicarEstiloVertice(Parada parada, String estilo) {
         SmartStylableNode stylable = graphView.getStylableVertex(parada);
@@ -143,10 +184,29 @@ public class MapaController {
         }
     }
 
+    /*
+        Nombre: aplicarEstiloArista
+        Argumentos:
+            (Ruta) ruta: Representa la ruta cuya arista visual se desea estilizar.
+            (String) estilo: Representa el string de estilo CSS inline que se aplicará a la arista.
+        Objetivo: Aplicar un estilo CSS inline a la arista SmartGraph correspondiente a una ruta.
+        Retorno: (void) No retorna valor.
+     */
+
     private void aplicarEstiloArista(Ruta ruta, String estilo) {
         SmartStylableNode arista = graphView.getStylableEdge(ruta);
         if (arista instanceof Node nodoArista) aplicarEstiloRecursivo(nodoArista, estilo);
     }
+
+    /*
+        Nombre: aplicarEstiloRecursivo
+        Argumentos:
+            (Node) node: Representa el nodo JavaFX raíz desde el que se aplicará el estilo.
+            (String) estilo: Representa el string de estilo CSS inline que se aplicará.
+        Objetivo: Recorrer recursivamente el árbol de nodos JavaFX y aplicar el estilo
+                  a todas las formas que no sean círculos (para no afectar los vértices).
+        Retorno: (void) No retorna valor.
+     */
 
     private void aplicarEstiloRecursivo(Node node, String estilo) {
         if (node instanceof javafx.scene.shape.Shape shape && !(shape instanceof javafx.scene.shape.Circle))
@@ -154,6 +214,17 @@ public class MapaController {
         if (node instanceof javafx.scene.Parent parent)
             for (Node hijo : parent.getChildrenUnmodifiable()) aplicarEstiloRecursivo(hijo, estilo);
     }
+
+    /*
+        Nombre: evaluarSeleccion
+        Argumentos:
+            (Parada) parada: Representa la parada sobre la que el usuario hizo doble click.
+        Objetivo: Gestionar la selección de origen y destino en el mapa. Si la parada ya es
+                  el origen o destino activo, la deselecciona. Si no hay origen, la asigna
+                  como tal; si no hay destino, como destino. Si ambos ya están asignados,
+                  reinicia la selección y asigna la nueva parada como origen.
+        Retorno: (void) No retorna valor.
+     */
 
     private void evaluarSeleccion(Parada parada) {
         if (paradaOrigen != null && paradaOrigen.equals(parada)) {
@@ -254,6 +325,14 @@ public class MapaController {
         limpiarResultados();
     }
 
+    /*
+        Nombre: registrarTooltipsAristas
+        Argumentos: Ninguno.
+        Objetivo: Registrar tooltips informativos en cada arista del grafo visual,
+                  mostrando el nombre de la ruta y sus pesos al pasar el cursor.
+        Retorno: (void) No retorna valor.
+     */
+
     private void registrarTooltipsAristas() {
         for (Parada p : ServicioGrafo.get().getParadas()) {
             for (Ruta r : ServicioGrafo.get().getRutas(p)) {
@@ -273,6 +352,14 @@ public class MapaController {
         }
     }
 
+    /*
+        Nombre: estilizarRutaOptima
+        Argumentos: Ninguno.
+        Objetivo: Resaltar visualmente la ruta óptima calculada, aplicando estilos
+                  diferenciados a los vértices intermedios y a las aristas del camino.
+        Retorno: (void) No retorna valor.
+     */
+
     private void estilizarRutaOptima() {
         List<Parada> camino = new ArrayList<>(rutaOptima);
         limpiarEstilosRuta();
@@ -289,6 +376,14 @@ public class MapaController {
         }
     }
 
+    /*
+        Nombre: limpiarEstilosRuta
+        Argumentos: Ninguno.
+        Objetivo: Restablecer los estilos base de todos los vértices y aristas del grafo,
+                  preservando el estilo de los nodos origen y destino actualmente seleccionados.
+        Retorno: (void) No retorna valor.
+     */
+
     private void limpiarEstilosRuta() {
         if (graphView == null) return;
         for (Parada p : ServicioGrafo.get().getParadas()) {
@@ -301,6 +396,14 @@ public class MapaController {
         rutaOptima = new ArrayList<>();
     }
 
+    /*
+        Nombre: limpiarSeleccion
+        Argumentos: Ninguno.
+        Objetivo: Deseleccionar las paradas de origen y destino, restablecer todos los estilos
+                  del grafo y limpiar las etiquetas de selección.
+        Retorno: (void) No retorna valor.
+     */
+
     private void limpiarSeleccion() {
         if (paradaOrigen != null)  { aplicarEstiloVertice(paradaOrigen,  ESTILO_BASE); paradaOrigen  = null; }
         if (paradaDestino != null) { aplicarEstiloVertice(paradaDestino, ESTILO_BASE); paradaDestino = null; }
@@ -308,16 +411,40 @@ public class MapaController {
         actualizarLabels();
     }
 
+    /*
+        Nombre: encontrarVertice
+        Argumentos:
+            (Parada) parada: Representa la parada cuyo vértice se desea localizar en el dígrafo.
+        Objetivo: Buscar y retornar el vértice SmartGraph que corresponde a una parada específica.
+        Retorno: (Vertex<Parada>) Retorna el vértice encontrado, o null si no existe.
+     */
+
     private Vertex<Parada> encontrarVertice(Parada parada) {
         for (Vertex<Parada> v : digraph.vertices())
             if (v.element().equals(parada)) return v;
         return null;
     }
 
+    /*
+        Nombre: actualizarLabels
+        Argumentos: Ninguno.
+        Objetivo: Actualizar las etiquetas de origen y destino en la interfaz según
+                  las paradas actualmente seleccionadas.
+        Retorno: (void) No retorna valor.
+     */
+
     private void actualizarLabels() {
         lblOrigen.setText(paradaOrigen   != null ? paradaOrigen.getNombreParada()  : "Ninguno");
         lblDestino.setText(paradaDestino != null ? paradaDestino.getNombreParada() : "Ninguno");
     }
+
+    /*
+        Nombre: limpiarResultados
+        Argumentos: Ninguno.
+        Objetivo: Restablecer las etiquetas de resultados (tiempo, costo, distancia, transbordos)
+                  a su estado inicial mostrando un guion.
+        Retorno: (void) No retorna valor.
+     */
 
     private void limpiarResultados() {
         lblTiempo.setText("-");
@@ -325,6 +452,15 @@ public class MapaController {
         lblDistancia.setText("-");
         lblTransbordos.setText("-");
     }
+
+    /*
+        Nombre: mostrarAlerta
+        Argumentos:
+            (String) titulo: Representa el título que se mostrará en la ventana de alerta.
+            (String) mensaje: Representa el contenido del mensaje de la alerta.
+        Objetivo: Mostrar un diálogo de información al usuario con un título y mensaje específicos.
+        Retorno: (void) No retorna valor.
+     */
 
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

@@ -118,6 +118,14 @@ public class ParadasController {
         actualizarTabla();
     }
 
+    /*
+        Nombre: aplicarFiltros
+        Argumentos: Ninguno.
+        Objetivo: Filtrar la tabla de paradas combinando el tipo de transporte seleccionado
+                  y el texto ingresado en el campo de búsqueda, actualizando el contador visible.
+        Retorno: (void) No retorna valor.
+     */
+
     private void aplicarFiltros() {
         final TipoParada tipoSeleccionado = cmbTipo.getValue();
         final String textoBusqueda = txtBuscar.getText() == null ? "" : txtBuscar.getText().toLowerCase().trim();
@@ -180,6 +188,15 @@ public class ParadasController {
         }
     }
 
+    /*
+        Nombre: abrirFormulario
+        Argumentos:
+            (Parada) parada: Representa la parada a modificar, o null si se desea crear una nueva.
+        Objetivo: Abrir el formulario modal de registro o modificación de parada,
+                  y actualizar la tabla al cerrar la ventana.
+        Retorno: (void) No retorna valor.
+     */
+
     private void abrirFormulario(Parada parada) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegistroParada.fxml"));
@@ -204,6 +221,14 @@ public class ParadasController {
             throw new VistaNoCargadaException("/view/RegistroParada.fxml", ex);
         }
     }
+
+    /*
+        Nombre: actualizarTabla
+        Argumentos: Ninguno.
+        Objetivo: Recargar los datos de la tabla desde el grafo, reaplica los filtros activos
+                  y restaura la selección previa si el elemento aún existe.
+        Retorno: (void) No retorna valor.
+     */
 
     private void actualizarTabla() {
         Parada seleccionadaAntes = tablaParadas.getSelectionModel().getSelectedItem();

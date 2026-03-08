@@ -47,6 +47,15 @@ public class PrincipalController {
         generarSegmentacion(paradas);
     }
 
+    /*
+        Nombre: generarSegmentacion
+        Argumentos:
+            (List<Parada>) paradas: Representa la lista de paradas registradas en el grafo.
+        Objetivo: Generar dinámicamente las barras de progreso que muestran la distribución
+                  de paradas por tipo de transporte en la pantalla principal.
+        Retorno: (void) No retorna valor.
+     */
+
     private void generarSegmentacion(List<Parada> paradas) {
         TipoParada[] tipos = TipoParada.values();
         lblTiposCount.setText(tipos.length + " tipos");
