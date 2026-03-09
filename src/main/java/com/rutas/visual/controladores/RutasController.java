@@ -2,6 +2,8 @@ package com.rutas.visual.controladores;
 
 import com.rutas.logico.crud.ParadaCrud;
 import com.rutas.logico.crud.RutaCrud;
+import com.rutas.logico.modelo.GrafoTransporte;
+import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.excepciones.VistaNoCargadaException;
 import com.rutas.logico.modelo.Criterio;
 import com.rutas.logico.modelo.Ruta;
@@ -156,6 +158,20 @@ public class RutasController {
     public void handleEliminar(ActionEvent e) {
         Ruta seleccionada = tablaRutas.getSelectionModel().getSelectedItem();
         if (seleccionada == null) return;
+
+        GrafoTransporte copia = ServicioGrafo.get().copiar();
+        copia.eliminarRuta(seleccionada);
+        Parada paradaProblema = copia.esConexo();
+        if (paradaProblema != null) {
+            Alert bloqueo = new Alert(Alert.AlertType.WARNING);
+            bloqueo.setTitle("Operación bloqueada");
+            bloqueo.setHeaderText(null);
+            bloqueo.setContentText("No se puede eliminar la ruta \"" + seleccionada.getNombre()
+                    + "\" porque el grafo quedaría no conexo por la parada \""
+                    + paradaProblema.getNombreParada() + "\"");
+            bloqueo.showAndWait();
+            return;
+        }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmar eliminación");
