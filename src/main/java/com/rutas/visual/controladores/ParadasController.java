@@ -183,7 +183,7 @@ public class ParadasController {
         alert.setContentText("¿Deseas eliminar la parada \"" + seleccionada.getNombreParada() + "\"?");
         Optional<ButtonType> resultado = alert.showAndWait();
         if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-            paradaCrud.eliminarParada(seleccionada.getCodigo());
+            paradaCrud.eliminarParada(seleccionada);
             actualizarTabla();
         }
     }

@@ -21,6 +21,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -195,7 +196,7 @@ public class RutasController {
 
     private void abrirFormulario(Ruta ruta) {
         try {
-            // Validar ANTES de abrir la ventana
+
             if (paradaCrud.listarParadas().size() < 2) {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Validación");
@@ -216,6 +217,7 @@ public class RutasController {
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.setTitle(ruta != null ? "Modificar Ruta" : "Nueva Ruta");
+            dialog.getIcons().add(new Image(getClass().getResourceAsStream("/images/ruta.png")));
             dialog.setScene(new Scene(vista));
             dialog.setResizable(false);
             dialog.centerOnScreen();

@@ -53,9 +53,7 @@ public class ParadaCrud {
         Retorno: (boolean) Retorna true si la modificación fue exitosa, false si la parada no existe.
      */
 
-    public boolean modificarParada(String codigo, String nuevoNombre, TipoParada nuevoTipo, String nuevaUbicacion) {
-        Parada parada = grafo.getParada(new Parada(codigo, null, null, null));
-        if (parada == null) return false;
+    public boolean modificarParada(Parada parada, String nuevoNombre, TipoParada nuevoTipo, String nuevaUbicacion) {
 
         grafo.modificarParada(parada, nuevoNombre, nuevaUbicacion, nuevoTipo);
 
@@ -70,11 +68,9 @@ public class ParadaCrud {
         Retorno: (boolean) Retorna true si la parada fue eliminada, false si no existía.
      */
 
-    public boolean eliminarParada(String codigo) {
-        Parada clave = new Parada(codigo, null, null, null);
-        if (!grafo.existeParada(clave)) return false;
+    public boolean eliminarParada(Parada parada) {
 
-        grafo.eliminarParada(clave);
+        grafo.eliminarParada(parada);
         return true;
     }
 

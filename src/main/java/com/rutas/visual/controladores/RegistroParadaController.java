@@ -51,7 +51,7 @@ public class RegistroParadaController {
         }
 
         if (paradaAModificar != null) {
-            paradaCrud.modificarParada(paradaAModificar.getCodigo(), nombre, tipo, direccion);
+            paradaCrud.modificarParada(paradaAModificar, nombre, tipo, direccion);
         } else {
             paradaCrud.insertarParada(nombre, tipo, direccion);
         }

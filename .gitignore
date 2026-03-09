@@ -3,6 +3,12 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
+### IntelliJ IDEA folders ###
+.idea/
+*.iml
+
+### Maven ###
+target/
 
 ### Eclipse ###
 .apt_generated
