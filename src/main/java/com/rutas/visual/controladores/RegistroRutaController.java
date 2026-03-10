@@ -75,6 +75,10 @@ public class RegistroRutaController {
         Parada origen  = cmbOrigen.getValue();
         Parada destino = cmbDestino.getValue();
 
+        if(nombre.isBlank()){
+            mostrarAlerta("Debes ingresar un nombre para la ruta");
+        }
+
         if (origen == null || destino == null) {
             mostrarAlerta("Debes seleccionar origen y destino.");
             return;

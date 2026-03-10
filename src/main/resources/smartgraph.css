@@ -2,73 +2,12 @@
     -fx-background-color: #E3E3E3;
 }
 
-.vertex {
-    -fx-stroke-width: 2;
-    -fx-stroke: white;
-    -fx-stroke-type: inside;
-    -fx-fill: #234C6A;
-}
-
-.vertex:hover {
-    -fx-stroke-width: 3;
-}
-
 .vertex-label {
     -fx-font: bold 11pt "sans-serif";
     -fx-fill: #1B3C53;
 }
 
-.edge {
-    -fx-stroke-width: 1.5;
-    -fx-stroke: #CCCCCC;
-    -fx-fill: transparent;
-    -fx-stroke-line-cap: round;
-}
-
-.edge:hover {
-    -fx-stroke: #CCCCCC;
-    -fx-stroke-width: 1.5;
-    -fx-fill: transparent;
-}
-
-.edge.camino {
-    -fx-stroke: #1B3C53;
-    -fx-stroke-width: 4;
-    -fx-fill: transparent;
-}
-
-.arrow {
-    -fx-stroke-width: 1.5;
-    -fx-stroke: #CCCCCC;
-    -fx-fill: transparent;
-}
-
-.edge.camino {
-    -fx-stroke: #F0A500;
-    -fx-stroke-width: 4;
-    -fx-fill: transparent;
-}
-
-.edge.camino .arrow {
-    -fx-stroke: #F0A500;
-    -fx-stroke-width: 4;
-    -fx-fill: transparent;
-}
-
-.vertex.seleccionado-origen {
-    -fx-fill: #F0A500;
-    -fx-stroke: #1B3C53;
-    -fx-stroke-width: 3;
-}
-
-.vertex.seleccionado-destino {
-    -fx-fill: #E84040;
-    -fx-stroke: #1B3C53;
-    -fx-stroke-width: 3;
-}
-
-.vertex.intermedio {
-    -fx-fill: white;
-    -fx-stroke: #1B3C53;
-    -fx-stroke-width: 3;
+.edge-label {
+    -fx-font: normal 9pt "sans-serif";
+    -fx-fill: #555555;
 }

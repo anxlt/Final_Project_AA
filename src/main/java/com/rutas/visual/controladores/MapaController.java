@@ -20,6 +20,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MapaController {
 
@@ -27,7 +28,7 @@ public class MapaController {
     private static final String ESTILO_ORIGEN     = "-fx-fill: #456882; -fx-stroke: white; -fx-stroke-width: 4;";
     private static final String ESTILO_DESTINO    = "-fx-fill: #1B3C53; -fx-stroke: #E3E3E3; -fx-stroke-width: 4;";
     private static final String ESTILO_INTERMEDIO = "-fx-fill: #E3E3E3; -fx-stroke: #234C6A; -fx-stroke-width: 3;";
-    private static final String ESTILO_ARISTA_BASE   = "-fx-stroke: #CCCCCC; -fx-stroke-width: 1.5; -fx-fill: transparent;";
+    private static final String ESTILO_ARISTA_BASE   = "-fx-stroke: #CCCCCC; -fx-stroke-width: 4; -fx-fill: transparent;";
     private static final String ESTILO_ARISTA_CAMINO = "-fx-stroke: #F0A500; -fx-stroke-width: 4; -fx-fill: transparent;";
 
     @FXML private AnchorPane rootPane;
@@ -54,7 +55,7 @@ public class MapaController {
         cargarGrafo();
     }
 
-    /*
+      /*
         Nombre: configurarCeldaCriterio
         Argumentos: Ninguno.
         Objetivo: Configurar el ComboBox de criterios para mostrar los valores del enum
@@ -63,16 +64,21 @@ public class MapaController {
      */
 
     private void configurarCeldaCriterio() {
-        Callback<ListView<Criterio>, ListCell<Criterio>> factory = lv -> new ListCell<>() {
+        Callback<ListView<Criterio>, ListCell<Criterio>> factory = new Callback<ListView<Criterio>, ListCell<Criterio>>() {
             @Override
-            protected void updateItem(Criterio item, boolean empty) {
-                super.updateItem(item, empty);
-                setText((item == null || empty) ? null : item.name().charAt(0) + item.name().substring(1).toLowerCase());
-                if (item != null) setStyle("-fx-text-fill: black;");
+            public ListCell<Criterio> call(ListView<Criterio> lv) {
+                return new ListCell<Criterio>() {
+                    @Override
+                    protected void updateItem(Criterio item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText((item == null || empty) ? null : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                        if (item != null) setStyle("-fx-text-fill: black;");
+                    }
+                };
             }
         };
         cmbCriterio.setCellFactory(factory);
-        cmbCriterio.setButtonCell(new ListCell<>() {
+        cmbCriterio.setButtonCell(new ListCell<Criterio>() {
             @Override
             protected void updateItem(Criterio item, boolean empty) {
                 super.updateItem(item, empty);
@@ -121,7 +127,12 @@ public class MapaController {
         graphView.getStylesheets().clear();
         graphView.getStylesheets().add(getClass().getResource("/smartgraph.css").toExternalForm());
         graphView.setAutomaticLayout(true);
-        graphView.setVertexDoubleClickAction(v -> evaluarSeleccion(v.getUnderlyingVertex().element()));
+        graphView.setVertexDoubleClickAction(new Consumer<SmartGraphVertex<Parada>>() {
+            @Override
+            public void accept(SmartGraphVertex<Parada> v) {
+                evaluarSeleccion(v.getUnderlyingVertex().element());
+            }
+        });
 
         AnchorPane.setTopAnchor(graphView, 0.0);
         AnchorPane.setLeftAnchor(graphView, 0.0);
@@ -129,16 +140,22 @@ public class MapaController {
         AnchorPane.setBottomAnchor(graphView, 70.0);
         rootPane.getChildren().add(0, graphView);
 
-        Platform.runLater(() -> {
-            graphView.init();
-            PauseTransition pause = new PauseTransition(Duration.millis(500));
-            pause.setOnFinished(e -> {
-                graphView.update();
-                aplicarEstiloBase();
-                aplicarEstiloAristasBase();
-                registrarTooltipsAristas();
-            });
-            pause.play();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                graphView.init();
+                PauseTransition pause = new PauseTransition(Duration.millis(500));
+                pause.setOnFinished(new javafx.event.EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent e) {
+                        graphView.update();
+                        aplicarEstiloBase();
+                        aplicarEstiloAristasBase();
+                        registrarTooltipsAristas();
+                    }
+                });
+                pause.play();
+            }
         });
     }
 
@@ -150,7 +167,9 @@ public class MapaController {
      */
 
     private void aplicarEstiloBase() {
-        for (Parada p : ServicioGrafo.get().getParadas()) aplicarEstiloVertice(p, ESTILO_BASE);
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            aplicarEstiloVertice(p, ESTILO_BASE);
+        }
     }
 
     /*
@@ -161,8 +180,11 @@ public class MapaController {
      */
 
     private void aplicarEstiloAristasBase() {
-        for (Parada p : ServicioGrafo.get().getParadas())
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+                aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
+            }
+        }
     }
 
     /*
@@ -177,10 +199,15 @@ public class MapaController {
 
     private void aplicarEstiloVertice(Parada parada, String estilo) {
         SmartStylableNode stylable = graphView.getStylableVertex(parada);
-        if (stylable instanceof Node nodo) {
+        if (stylable instanceof Node) {
+            Node nodo = (Node) stylable;
             nodo.setStyle(estilo);
-            if (nodo instanceof javafx.scene.Parent parent)
-                for (Node hijo : parent.getChildrenUnmodifiable()) hijo.setStyle(estilo);
+            if (nodo instanceof javafx.scene.Parent) {
+                javafx.scene.Parent parent = (javafx.scene.Parent) nodo;
+                for (Node hijo : parent.getChildrenUnmodifiable()) {
+                    hijo.setStyle(estilo);
+                }
+            }
         }
     }
 
@@ -195,7 +222,9 @@ public class MapaController {
 
     private void aplicarEstiloArista(Ruta ruta, String estilo) {
         SmartStylableNode arista = graphView.getStylableEdge(ruta);
-        if (arista instanceof Node nodoArista) aplicarEstiloRecursivo(nodoArista, estilo);
+        if (arista instanceof Node) {
+            aplicarEstiloRecursivo((Node) arista, estilo);
+        }
     }
 
     /*
@@ -209,10 +238,16 @@ public class MapaController {
      */
 
     private void aplicarEstiloRecursivo(Node node, String estilo) {
-        if (node instanceof javafx.scene.shape.Shape shape && !(shape instanceof javafx.scene.shape.Circle))
+        if (node instanceof javafx.scene.shape.Shape && !(node instanceof javafx.scene.shape.Circle)) {
+            javafx.scene.shape.Shape shape = (javafx.scene.shape.Shape) node;
             shape.setStyle(estilo);
-        if (node instanceof javafx.scene.Parent parent)
-            for (Node hijo : parent.getChildrenUnmodifiable()) aplicarEstiloRecursivo(hijo, estilo);
+        }
+        if (node instanceof javafx.scene.Parent) {
+            javafx.scene.Parent parent = (javafx.scene.Parent) node;
+            for (Node hijo : parent.getChildrenUnmodifiable()) {
+                aplicarEstiloRecursivo(hijo, estilo);
+            }
+        }
     }
 
     /*
@@ -338,7 +373,8 @@ public class MapaController {
             for (Ruta r : ServicioGrafo.get().getRutas(p)) {
                 try {
                     SmartStylableNode edge = graphView.getStylableEdge(r);
-                    if (!(edge instanceof Node nodoEdge)) continue;
+                    if (!(edge instanceof javafx.scene.Node)) continue;
+                    javafx.scene.Node nodoEdge = (javafx.scene.Node) edge;
                     String texto = r.getNombre() + "\n"
                             + "Tiempo: "      + r.getPeso(Criterio.TIEMPO)      + " min\n"
                             + "Costo: $"      + r.getPeso(Criterio.COSTO)       + "\n"
@@ -387,12 +423,15 @@ public class MapaController {
     private void limpiarEstilosRuta() {
         if (graphView == null) return;
         for (Parada p : ServicioGrafo.get().getParadas()) {
-            if (paradaOrigen  != null && paradaOrigen.equals(p)) continue;
+            if (paradaOrigen  != null && paradaOrigen.equals(p))  continue;
             if (paradaDestino != null && paradaDestino.equals(p)) continue;
             aplicarEstiloVertice(p, ESTILO_BASE);
         }
-        for (Parada p : ServicioGrafo.get().getParadas())
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
+        for (Parada p : ServicioGrafo.get().getParadas()) {
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+                aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
+            }
+        }
         rutaOptima = new ArrayList<>();
     }
 
@@ -405,7 +444,7 @@ public class MapaController {
      */
 
     private void limpiarSeleccion() {
-        if (paradaOrigen != null)  { aplicarEstiloVertice(paradaOrigen,  ESTILO_BASE); paradaOrigen  = null; }
+        if (paradaOrigen  != null) { aplicarEstiloVertice(paradaOrigen,  ESTILO_BASE); paradaOrigen  = null; }
         if (paradaDestino != null) { aplicarEstiloVertice(paradaDestino, ESTILO_BASE); paradaDestino = null; }
         limpiarEstilosRuta();
         actualizarLabels();
@@ -420,8 +459,9 @@ public class MapaController {
      */
 
     private Vertex<Parada> encontrarVertice(Parada parada) {
-        for (Vertex<Parada> v : digraph.vertices())
+        for (Vertex<Parada> v : digraph.vertices()) {
             if (v.element().equals(parada)) return v;
+        }
         return null;
     }
 
