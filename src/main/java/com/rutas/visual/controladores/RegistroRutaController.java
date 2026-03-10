@@ -77,6 +77,7 @@ public class RegistroRutaController {
 
         if(nombre.isBlank()){
             mostrarAlerta("Debes ingresar un nombre para la ruta");
+            return;
         }
 
         if (origen == null || destino == null) {

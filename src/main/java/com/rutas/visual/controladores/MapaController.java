@@ -382,6 +382,7 @@ public class MapaController {
                             + "Transbordos: " + r.getPeso(Criterio.TRANSBORDOS);
                     Tooltip tooltip = new Tooltip(texto);
                     tooltip.setStyle("-fx-font-size: 11px; -fx-background-color: #1B3C53; -fx-text-fill: white;");
+                    tooltip.setShowDelay(javafx.util.Duration.millis(100));
                     Tooltip.install(nodoEdge, tooltip);
                 } catch (Exception ignored) {}
             }
