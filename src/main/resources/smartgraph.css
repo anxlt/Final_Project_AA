@@ -11,3 +11,11 @@
     -fx-font: normal 9pt "sans-serif";
     -fx-fill: #555555;
 }
+
+
+.arrow {
+    -fx-stroke-width: 4;
+    -fx-stroke: #CCCCCC;
+    -fx-fill: transparent;
+}
+
