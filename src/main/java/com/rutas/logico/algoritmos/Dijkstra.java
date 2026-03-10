@@ -44,23 +44,24 @@ public class Dijkstra {
 
         while (!cola.isEmpty()) {
             Parada actual = cola.poll();
+            if(!visitados.contains(actual)) {
+                visitados.add(actual);
 
-            if (visitados.contains(actual)) continue;
-            visitados.add(actual);
+                if (actual.equals(destino))
+                    break;
 
-            if (actual.equals(destino)) break;
+                for (Ruta ruta : grafo.obtenerVecinos(actual)) {
+                    Parada vecino = ruta.getDestino();
+                    Object pesoObj = ruta.getPeso(criterio);
 
-            for (Ruta ruta : grafo.obtenerVecinos(actual)) {
-                Parada vecino  = ruta.getDestino();
-                Object pesoObj = ruta.getPeso(criterio);
-
-                if (!visitados.contains(vecino) && pesoObj != null) {
-                    double nuevoCosto = costos.get(actual) + ((Number) pesoObj).doubleValue();
-                    if (nuevoCosto < costos.getOrDefault(vecino, Double.MAX_VALUE)) {
-                        costos.put(vecino, nuevoCosto);
-                        anterior.put(vecino, actual);
-                        cola.remove(vecino);
-                        cola.add(vecino);
+                    if (!visitados.contains(vecino) && pesoObj != null) {
+                        double nuevoCosto = costos.get(actual) + ((Number) pesoObj).doubleValue();
+                        if (nuevoCosto < costos.getOrDefault(vecino, Double.MAX_VALUE)) {
+                            costos.put(vecino, nuevoCosto);
+                            anterior.put(vecino, actual);
+                            cola.remove(vecino);
+                            cola.add(vecino);
+                        }
                     }
                 }
             }

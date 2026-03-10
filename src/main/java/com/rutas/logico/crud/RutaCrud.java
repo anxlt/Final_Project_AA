@@ -75,22 +75,13 @@ public class RutaCrud {
     public void modificarRuta(Ruta ruta, String nombre, Parada origen, Parada destino,
                               double tiempo, double costo, double distancia, int transbordos) {
 
-        boolean cambioPares = !ruta.getOrigen().equals(origen) || !ruta.getDestino().equals(destino);
+        Ruta rutaNueva = new Ruta(ruta.getId(), nombre, origen, destino);
+        rutaNueva.setPeso(Criterio.TIEMPO,      tiempo);
+        rutaNueva.setPeso(Criterio.COSTO,       costo);
+        rutaNueva.setPeso(Criterio.DISTANCIA,   distancia);
+        rutaNueva.setPeso(Criterio.TRANSBORDOS, transbordos);
+        grafo.modificarRuta(ruta, rutaNueva);
 
-        if (cambioPares) {
-            Ruta rutaNueva = new Ruta(ruta.getId(), nombre, origen, destino);
-            rutaNueva.setPeso(Criterio.TIEMPO,      tiempo);
-            rutaNueva.setPeso(Criterio.COSTO,       costo);
-            rutaNueva.setPeso(Criterio.DISTANCIA,   distancia);
-            rutaNueva.setPeso(Criterio.TRANSBORDOS, transbordos);
-            grafo.modificarRuta(ruta, rutaNueva);
-        } else {
-            ruta.setNombre(nombre);
-            ruta.setPeso(Criterio.TIEMPO,      tiempo);
-            ruta.setPeso(Criterio.COSTO,       costo);
-            ruta.setPeso(Criterio.DISTANCIA,   distancia);
-            ruta.setPeso(Criterio.TRANSBORDOS, transbordos);
-        }
     }
 
     /*
