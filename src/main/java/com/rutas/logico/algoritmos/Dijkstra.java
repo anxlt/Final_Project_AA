@@ -23,7 +23,7 @@ public class Dijkstra {
 
     public static List<Parada> ejecutar(GrafoTransporte grafo, Parada origen, Parada destino, Criterio criterio) {
 
-        Map<Parada, Double> costos   = new HashMap<>();
+        Map<Parada, Double> costos   = new HashMap<>(); //Cambiar nombre a peso
         Map<Parada, Parada> anterior = new HashMap<>();
         Set<Parada> visitados        = new HashSet<>();
 
@@ -39,6 +39,7 @@ public class Dijkstra {
                 return Double.compare(costos.get(a), costos.get(b));
             }
         });
+        //Cambiar el comparador para que no utilice double
 
         cola.add(origen);
 
