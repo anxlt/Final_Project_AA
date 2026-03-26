@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="556.0" prefWidth="947.0" style="-fx-background-color: #E3E3E3;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.PrincipalController">
+<AnchorPane prefHeight="556.0" prefWidth="947.0" style="-fx-background-color: #E3E3E3;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.PrincipalController">
 
    <!-- TOPBAR -->
    <VBox prefHeight="72.0" prefWidth="947.0" spacing="4" style="-fx-background-color: white; -fx-padding: 20 30 20 30;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

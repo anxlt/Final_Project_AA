@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="borderPane" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.MenuController">
+<BorderPane fx:id="borderPane" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rutas.visual.controladores.MenuController">
 
    <left>
       <VBox prefHeight="700.0" prefWidth="251.0" style="-fx-background-color: #1B3C53;">
