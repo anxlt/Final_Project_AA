@@ -12,9 +12,7 @@
          <!-- LOGO  -->
          <VBox alignment="CENTER" prefHeight="193.0" prefWidth="252.0" style="-fx-padding: 24 16 24 16;">
             <ImageView fitHeight="147.0" fitWidth="236.0" preserveRatio="true">
-               <image>
-                  <Image url="@/Images/logoCompleto.png" />
-               </image>
+               <Image url="@/Images/logoCompleto.png"/>
             </ImageView>
          </VBox>
 
