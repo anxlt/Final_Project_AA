@@ -9,7 +9,7 @@ import java.util.*;
 public class GrafoTransporte {
 
     private final Digraph<Parada, Ruta> grafo = new DigraphEdgeList<>();
-    private final Map<String, Vertex<Parada>> verticesPorCodigo = new HashMap<>(); //Cambiar el mapa (no utilizar String)
+    private final Map<String, Vertex<Parada>> verticesPorCodigo = new HashMap<>();
 
 
     /*
@@ -72,9 +72,10 @@ public class GrafoTransporte {
      */
 
     public List<Parada> getParadas() {
-        return grafo.vertices().stream()
-                .map(Vertex::element)
-                .collect(java.util.stream.Collectors.toList());
+        List<Parada> lista = new ArrayList<>();
+        for (Vertex<Parada> v : grafo.vertices())
+            lista.add(v.element());
+        return lista;
     }
 
     /*
@@ -160,11 +161,12 @@ public class GrafoTransporte {
      */
 
     public List<Ruta> obtenerVecinos(Parada parada) {
-        Vertex<Parada> v = verticesPorCodigo.get(parada);
+        Vertex<Parada> v = verticesPorCodigo.get(parada.getCodigo());
         if (v == null) return Collections.emptyList();
-        return grafo.outboundEdges(v).stream()
-                .map(Edge::element)
-                .collect(java.util.stream.Collectors.toList());
+        List<Ruta> resultado = new ArrayList<>();
+        for (Edge<Ruta, Parada> e : grafo.outboundEdges(v))
+            resultado.add(e.element());
+        return resultado;
     }
 
     /*
