@@ -26,14 +26,14 @@
         <VBox spacing="3">
             <Label style="-fx-text-fill: #234C6A; -fx-font-size: 9px; -fx-font-weight: bold;" text="ORIGEN" />
             <Label fx:id="lblOrigen" prefWidth="120.0"
-                   style="-fx-text-fill: #F0A500; -fx-font-size: 12px; -fx-font-weight: bold;" text="Ninguno" />
+                   style="-fx-text-fill: #00b4d8; -fx-font-size: 12px; -fx-font-weight: bold;" text="Ninguno" />
         </VBox>
 
         <!-- Destino -->
         <VBox spacing="3">
             <Label style="-fx-text-fill: #234C6A; -fx-font-size: 9px; -fx-font-weight: bold;" text="DESTINO" />
             <Label fx:id="lblDestino" prefWidth="120.0"
-                   style="-fx-text-fill: #E84040; -fx-font-size: 12px; -fx-font-weight: bold;" text="Ninguno" />
+                   style="-fx-text-fill: #0077b6; -fx-font-size: 12px; -fx-font-weight: bold;" text="Ninguno" />
         </VBox>
 
         <!-- Criterio -->
@@ -47,11 +47,11 @@
         <!-- Acciones -->
         <Button text="Buscar" onAction="#handleBuscar" prefHeight="32.0" prefWidth="80.0"
                 style="-fx-background-color: #1B3C53; -fx-text-fill: white; -fx-font-size: 12px;
-                       -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" />
+                      -fx-background-radius: 8; -fx-cursor: hand;" />
 
         <Button text="Limpiar" onAction="#handleLimpiar" prefHeight="32.0" prefWidth="80.0"
-                style="-fx-background-color: #456882; -fx-text-fill: white; -fx-font-size: 12px;
-                       -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" />
+                style="-fx-background-color: white; -fx-border-color: #1B3C53;-fx-border-radius: 8;-fx-text-fill: #333; -fx-font-size: 12px;
+                      -fx-background-radius: 8; -fx-cursor: hand;" />
 
         <Region prefHeight="40.0" prefWidth="1.0" style="-fx-background-color: #456882;" />
 
