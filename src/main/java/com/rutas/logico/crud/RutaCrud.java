@@ -1,5 +1,6 @@
 package com.rutas.logico.crud;
 
+import com.rutas.logico.database.repositorios.RutaRepositorio;
 import com.rutas.logico.modelo.Criterio;
 import com.rutas.logico.modelo.GrafoTransporte;
 import com.rutas.logico.modelo.Parada;
@@ -11,6 +12,7 @@ import java.util.List;
 public class RutaCrud {
 
     private final GrafoTransporte grafo;
+    private final RutaRepositorio repo = new RutaRepositorio();
     private int contador = 0;
 
     public RutaCrud(GrafoTransporte grafo) {
@@ -53,6 +55,7 @@ public class RutaCrud {
         ruta.setPeso(Criterio.DISTANCIA,   distancia);
         ruta.setPeso(Criterio.TRANSBORDOS, transbordos);
         grafo.agregarRuta(ruta);
+        repo.insertar(ruta);
         return true;
     }
 
@@ -81,6 +84,7 @@ public class RutaCrud {
         rutaNueva.setPeso(Criterio.DISTANCIA,   distancia);
         rutaNueva.setPeso(Criterio.TRANSBORDOS, transbordos);
         grafo.modificarRuta(ruta, rutaNueva);
+        repo.actualizar(rutaNueva);
 
     }
 
@@ -94,6 +98,7 @@ public class RutaCrud {
 
     public void eliminarRuta(Ruta ruta) {
         grafo.eliminarRuta(ruta);
+        repo.eliminar(ruta);
     }
 
     /*

@@ -1,6 +1,11 @@
 package com.rutas.visual;
 
+import com.rutas.logico.database.DatabaseInitializer;
+import com.rutas.logico.database.repositorios.ParadaRepositorio;
+import com.rutas.logico.database.repositorios.RutaRepositorio;
 import com.rutas.logico.modelo.GrafoTransporte;
+import com.rutas.logico.modelo.Parada;
+import com.rutas.logico.modelo.Ruta;
 import com.rutas.servicios.ServicioGrafo;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +24,11 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        ServicioGrafo.init(new GrafoTransporte());
+        DatabaseInitializer.inicializar();
+        GrafoTransporte grafo = new GrafoTransporte();
+        cargarDatosDesdeDB(grafo);
+        ServicioGrafo.init(grafo);
+
         FXMLLoader fxmlLoader = new FXMLLoader(Launcher.class.getResource("/view/Menu.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Sistema de Gestión de Rutas de Transporte");
@@ -33,5 +42,18 @@ public class Launcher extends Application {
 
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void cargarDatosDesdeDB(GrafoTransporte grafo) {
+        ParadaRepositorio paradaRepo = new ParadaRepositorio();
+        RutaRepositorio rutaRepo = new RutaRepositorio();
+
+        for (Parada p : paradaRepo.listarTodas()) {
+            grafo.agregarParada(p);
+        }
+
+        for (Ruta r : rutaRepo.listarTodas()) {
+            grafo.agregarRuta(r);
+        }
     }
 }

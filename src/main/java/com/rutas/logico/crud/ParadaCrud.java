@@ -1,5 +1,6 @@
 package com.rutas.logico.crud;
 
+import com.rutas.logico.database.repositorios.ParadaRepositorio;
 import com.rutas.logico.modelo.GrafoTransporte;
 import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.modelo.TipoParada;
@@ -9,6 +10,7 @@ import java.util.List;
 public class ParadaCrud {
 
     private final GrafoTransporte grafo;
+    private final ParadaRepositorio repo = new ParadaRepositorio();
     private int contador = 0;
 
     public ParadaCrud(GrafoTransporte grafo) {
@@ -39,6 +41,8 @@ public class ParadaCrud {
         String codigo = String.valueOf(contador);
         Parada nueva = new Parada(codigo, nombre, tipo, ubicacion);
         grafo.agregarParada(nueva);
+        repo.insertar(nueva);
+
         return true;
     }
 
@@ -56,7 +60,7 @@ public class ParadaCrud {
     public boolean modificarParada(Parada parada, String nuevoNombre, TipoParada nuevoTipo, String nuevaUbicacion) {
 
         grafo.modificarParada(parada, nuevoNombre, nuevaUbicacion, nuevoTipo);
-
+        repo.actualizar(parada);
         return true;
     }
 
@@ -71,6 +75,7 @@ public class ParadaCrud {
     public boolean eliminarParada(Parada parada) {
 
         grafo.eliminarParada(parada);
+        repo.eliminar(parada);
         return true;
     }
 
