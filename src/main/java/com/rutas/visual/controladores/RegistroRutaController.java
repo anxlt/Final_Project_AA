@@ -96,19 +96,24 @@ public class RegistroRutaController {
         int    transbordos = spnTransbordos.getValue();
 
         if (rutaAModificar != null) {
-            GrafoTransporte copia = ServicioGrafo.get().copiar();
-            copia.eliminarRuta(rutaAModificar);
-            Ruta rutaSimulada = new Ruta(rutaAModificar.getId(), nombre, origen, destino);
-            for (Criterio c : Criterio.values()) {
-                rutaSimulada.setPeso(c, rutaAModificar.getPeso(c));
+            boolean cambioParadas = !origen.equals(rutaAModificar.getOrigen()) ||
+                    !destino.equals(rutaAModificar.getDestino());
+            if(cambioParadas) {
+                GrafoTransporte copia = ServicioGrafo.get().copiar();
+                copia.eliminarRuta(rutaAModificar);
+                Ruta rutaSimulada = new Ruta(rutaAModificar.getId(), nombre, origen, destino);
+                for (Criterio c : Criterio.values()) {
+                    rutaSimulada.setPeso(c, rutaAModificar.getPeso(c));
+                }
+                copia.agregarRuta(rutaSimulada);
+                Parada paradaProblema = copia.esConexo();
+                if (paradaProblema != null) {
+                    mostrarAlerta("No se puede aplicar esta modificación porque el grafo quedaría no conexo: "
+                            + " por la parada \"" + paradaProblema.getNombreParada() + "\"");
+                    return;
+                }
             }
-            copia.agregarRuta(rutaSimulada);
-            Parada paradaProblema = copia.esConexo();
-            if (paradaProblema != null) {
-                mostrarAlerta("No se puede aplicar esta modificación porque el grafo quedaría no conexo: "
-                        + " por la parada \"" + paradaProblema.getNombreParada() + "\"");
-                return;
-            }
+
             rutaCrud.modificarRuta(rutaAModificar, nombre, origen, destino, tiempo, costo, distancia, transbordos);
         } else {
             boolean agregado = rutaCrud.agregarRuta(nombre, origen, destino, tiempo, costo, distancia, transbordos);
