@@ -39,6 +39,7 @@ public class MapaController {
     @FXML private Label lblTransbordos;
     @FXML private Label lblOrigen;
     @FXML private Label lblDestino;
+    @FXML private Button btnAlternativo;
 
     private SmartGraphPanel<Parada, Ruta> graphView;
     private Digraph<Parada, Ruta> digraph;
@@ -47,8 +48,11 @@ public class MapaController {
     private Parada paradaDestino = null;
     private List<Parada> rutaOptima = new ArrayList<>();
 
+    private List<List<Parada>> caminosPrevios = new ArrayList<>();
+
     @FXML
     public void initialize() {
+        btnAlternativo.setDisable(true);
         cmbCriterio.setItems(FXCollections.observableArrayList(Criterio.values()));
         configurarCeldaCriterio();
         cmbCriterio.getSelectionModel().selectFirst();
@@ -92,6 +96,9 @@ public class MapaController {
         paradaOrigen  = null;
         paradaDestino = null;
         rutaOptima    = new ArrayList<>();
+        if (btnAlternativo != null) {
+            btnAlternativo.setDisable(true);
+        }
         limpiarResultados();
         actualizarLabels();
         cargarGrafo();
@@ -321,6 +328,7 @@ public class MapaController {
 
         if (camino == null || camino.isEmpty()) {
             rutaOptima = new ArrayList<>();
+            caminosPrevios = new ArrayList<>();
             limpiarEstilosRuta();
             limpiarResultados();
             mostrarAlerta("Sin ruta", "No existe ruta entre " + paradaOrigen.getNombreParada()
@@ -328,7 +336,10 @@ public class MapaController {
             return;
         }
 
+        caminosPrevios = new ArrayList<>();
         rutaOptima = camino;
+        caminosPrevios.add(camino);
+        btnAlternativo.setDisable(false);
         estilizarRutaOptima();
 
         double totalTiempo = 0, totalCosto = 0, totalDistancia = 0, totalTransbordos = 0;
@@ -355,9 +366,63 @@ public class MapaController {
     }
 
     @FXML
+    public void handleBuscarAlternativo(ActionEvent e) {
+        Criterio criterio = cmbCriterio.getValue();
+
+        if (paradaOrigen == null || paradaDestino == null || criterio == null) {
+            mostrarAlerta("Alternativo", "Selecciona origen y destino primero.");
+            return;
+        }
+        if (paradaOrigen.equals(paradaDestino)) {
+            mostrarAlerta("Alternativo", "El origen y el destino no pueden ser iguales.");
+            return;
+        }
+
+        List<Parada> alternativo = Dijkstra.ejecutarAlternativo(
+                ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
+
+        if (alternativo == null || alternativo.isEmpty()) {
+            mostrarAlerta("Alternativo", "No hay más caminos alternativos disponibles.\n"
+                    + "Total encontrados: " + caminosPrevios.size()
+                    + "\n\nPresiona Limpiar para reiniciar.");
+            return;
+        }
+
+        caminosPrevios.add(alternativo);
+        rutaOptima = alternativo;
+        estilizarRutaOptima();
+
+        double totalTiempo = 0, totalCosto = 0, totalDistancia = 0, totalTransbordos = 0;
+        for (int i = 0; i < alternativo.size() - 1; i++) {
+            for (Ruta ruta : ServicioGrafo.get().obtenerVecinos(alternativo.get(i))) {
+                if (ruta.getDestino().equals(alternativo.get(i + 1))) {
+                    Object pt  = ruta.getPeso(Criterio.TIEMPO);
+                    Object pc  = ruta.getPeso(Criterio.COSTO);
+                    Object pd  = ruta.getPeso(Criterio.DISTANCIA);
+                    Object ptr = ruta.getPeso(Criterio.TRANSBORDOS);
+                    if (pt  instanceof Number) totalTiempo      += ((Number) pt).doubleValue();
+                    if (pc  instanceof Number) totalCosto       += ((Number) pc).doubleValue();
+                    if (pd  instanceof Number) totalDistancia   += ((Number) pd).doubleValue();
+                    if (ptr instanceof Number) totalTransbordos += ((Number) ptr).doubleValue();
+                    break;
+                }
+            }
+        }
+
+        lblTiempo.setText(String.format("%.1f min", totalTiempo));
+        lblCosto.setText(String.format("$%.2f", totalCosto));
+        lblDistancia.setText(String.format("%.1f km", totalDistancia));
+        lblTransbordos.setText(String.valueOf((int) totalTransbordos));
+
+    }
+
+
+    @FXML
     public void handleLimpiar(ActionEvent e) {
         limpiarSeleccion();
         limpiarResultados();
+        caminosPrevios = new ArrayList<>();
+        btnAlternativo.setDisable(true);
     }
 
     /*
