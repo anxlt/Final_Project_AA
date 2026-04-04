@@ -39,10 +39,10 @@ public class RegistroRutaController {
 
     @FXML
     public void initialize() {
-        spnTiempo.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1440, 0, 1));
-        spnCosto.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100000, 0, 1));
-        spnDistancia.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99999, 0, 0.5));
-        spnTransbordos.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 0, 1));
+        spnTiempo.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-9999, 1440, 0, 1));
+        spnCosto.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-9999, 100000, 0, 1));
+        spnDistancia.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-9999, 99999, 0, 0.5));
+        spnTransbordos.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(-9999, 50, 0, 1));
     }
 
     public void setParadas(List<Parada> paradas) {

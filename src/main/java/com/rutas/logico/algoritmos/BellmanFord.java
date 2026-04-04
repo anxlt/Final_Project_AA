@@ -7,8 +7,7 @@ import com.rutas.logico.modelo.Ruta;
 
 import java.util.*;
 
-public class Dijkstra {
-
+public class BellmanFord {
 
     /*
         Nombre: ejecutar
@@ -16,64 +15,93 @@ public class Dijkstra {
             (GrafoTransporte) grafo: Representa el grafo dirigido sobre el que se realiza la búsqueda.
             (Parada) origen: Representa la parada desde donde inicia el recorrido.
             (Parada) destino: Representa la parada a la que se desea llegar.
-            (Criterio) criterio: Representa el peso que se utilizará para calcular la ruta óptima (tiempo, costo, distancia o transbordos).
-        Objetivo: Calcular la ruta óptima entre dos paradas usando el algoritmo de Dijkstra según el criterio indicado.
-        Retorno: (List<Parada>) Retorna la lista ordenada de paradas que conforman el camino más corto, o null si no existe ruta.
+            (Criterio) criterio: Representa el peso que se utilizará para calcular la ruta óptima
+                                 (tiempo, costo, distancia o transbordos).
+        Objetivo: Calcular la ruta óptima entre dos paradas usando el algoritmo de Bellman-Ford
+                  según el criterio indicado. A diferencia de Dijkstra, Bellman-Ford relaja todas
+                  las aristas del grafo (|V| - 1) veces, lo que le permite manejar pesos negativos.
+                  También detecta ciclos negativos y retorna null si los hay.
+        Retorno: (List<Parada>) Retorna la lista ordenada de paradas que conforman el camino más
+                 corto, null si no existe ruta o si se detecta un ciclo negativo.
      */
 
     public static List<Parada> ejecutar(GrafoTransporte grafo, Parada origen, Parada destino, Criterio criterio) {
 
-        Map<Parada, Double> pesos   = new HashMap<>();
+        List<Parada> paradas         = grafo.getParadas();
+        Map<Parada, Double> pesos    = new HashMap<>();
         Map<Parada, Parada> anterior = new HashMap<>();
-        Set<Parada> visitados        = new HashSet<>();
 
-        for (Parada p : grafo.getParadas()) {
+        for (Parada p : paradas) {
             pesos.put(p, Double.MAX_VALUE);
         }
-
         pesos.put(origen, 0.0);
 
-        PriorityQueue<Parada> cola = new PriorityQueue<>(new Comparator<Parada>() {
-            @Override
-            public int compare(Parada a, Parada b) {
-                return Double.compare(pesos.get(a), pesos.get(b));
+        int n = paradas.size();
+        boolean convergio = false;
+
+        for (int iteracion = 0; iteracion < n - 1 && !convergio; iteracion++) {
+            boolean huboActualizacion = false;
+
+            for (Parada actual : paradas) {
+                if (pesos.get(actual) != Double.MAX_VALUE) {
+
+                    for (Ruta ruta : grafo.obtenerVecinos(actual)) {
+                        Parada vecino  = ruta.getDestino();
+                        Object pesoObj = ruta.getPeso(criterio);
+
+                        if (pesoObj != null) {
+                            double peso       = ((Number) pesoObj).doubleValue();
+                            double nuevoCosto = pesos.get(actual) + peso;
+
+                            if (nuevoCosto < pesos.getOrDefault(vecino, Double.MAX_VALUE)) {
+                                pesos.put(vecino, nuevoCosto);
+                                anterior.put(vecino, actual);
+                                huboActualizacion = true;
+                            }
+                        }
+                    }
+                }
             }
-        });
 
-        cola.add(origen);
+            if (!huboActualizacion) {
+                convergio = true;
+            }
+        }
 
-        while (!cola.isEmpty()) {
-            Parada actual = cola.poll();
-            if(!visitados.contains(actual)) {
-                visitados.add(actual);
+        boolean cicloNegativo = false;
 
-                if (actual.equals(destino))
-                    break;
+        for (Parada actual : paradas) {
+            if (pesos.get(actual) != Double.MAX_VALUE) {
 
                 for (Ruta ruta : grafo.obtenerVecinos(actual)) {
-                    Parada vecino = ruta.getDestino();
+                    Parada vecino  = ruta.getDestino();
                     Object pesoObj = ruta.getPeso(criterio);
 
-                    if (!visitados.contains(vecino) && pesoObj != null) {
-                        double nuevoCosto = pesos.get(actual) + ((Number) pesoObj).doubleValue();
+                    if (pesoObj != null) {
+                        double peso       = ((Number) pesoObj).doubleValue();
+                        double nuevoCosto = pesos.get(actual) + peso;
+
                         if (nuevoCosto < pesos.getOrDefault(vecino, Double.MAX_VALUE)) {
-                            pesos.put(vecino, nuevoCosto);
-                            anterior.put(vecino, actual);
-                            cola.remove(vecino);
-                            cola.add(vecino);
+                            cicloNegativo = true;
                         }
                     }
                 }
             }
         }
 
+        if (cicloNegativo) return null;
+
         if (!pesos.containsKey(destino) || pesos.get(destino) == Double.MAX_VALUE) return null;
 
         List<Parada> camino = new ArrayList<>();
-        for (Parada paso = destino; paso != null; paso = anterior.get(paso))
+        for (Parada paso = destino; paso != null; paso = anterior.get(paso)) {
             camino.add(paso);
+        }
 
         Collections.reverse(camino);
+
+        if (camino.isEmpty() || !camino.get(0).equals(origen)) return null;
+
         return camino;
     }
 
@@ -87,7 +115,7 @@ public class Dijkstra {
             (List<List<Parada>>) caminosPrevios: Lista de caminos ya encontrados que deben ser excluidos.
         Objetivo: Calcular un camino alternativo que no sea igual a ninguno de los caminos previos.
                   Para cada arista del último camino encontrado, se elimina temporalmente esa arista
-                  del grafo y se ejecuta Dijkstra, conservando el mejor resultado distinto a todos
+                  del grafo y se ejecuta Bellman-Ford, conservando el mejor resultado distinto a todos
                   los caminos ya conocidos.
         Retorno: (List<Parada>) Retorna el siguiente mejor camino distinto, o null si no existe ninguno.
      */
@@ -100,31 +128,36 @@ public class Dijkstra {
 
         List<Parada> mejorCandidato = null;
         double mejorCosto = Double.MAX_VALUE;
-        
+
         for (int i = 0; i < ultimoCamino.size() - 1; i++) {
             Parada desde = ultimoCamino.get(i);
             Parada hasta = ultimoCamino.get(i + 1);
 
             Ruta rutaAEliminar = null;
-            for (Ruta r : grafo.obtenerVecinos(desde)) {
+            boolean encontrada = false;
+            Iterator<Ruta> it = grafo.obtenerVecinos(desde).iterator();
+
+            while (it.hasNext() && !encontrada) {
+                Ruta r = it.next();
                 if (r.getDestino().equals(hasta)) {
                     rutaAEliminar = r;
-                    break;
+                    encontrada = true;
                 }
             }
-            if (rutaAEliminar == null) continue;
 
-            grafo.eliminarRuta(rutaAEliminar);
-            List<Parada> candidato = ejecutar(grafo, origen, destino, criterio);
-            grafo.agregarRuta(rutaAEliminar);
+            if (rutaAEliminar != null) {
+                grafo.eliminarRuta(rutaAEliminar);
+                List<Parada> candidato = ejecutar(grafo, origen, destino, criterio);
+                grafo.agregarRuta(rutaAEliminar);
 
-            if (candidato == null || candidato.isEmpty()) continue;
-
-            if (esCaminoNuevo(candidato, caminosPrevios)) {
-                double costo = calcularCosto(grafo, candidato, criterio);
-                if (costo < mejorCosto) {
-                    mejorCosto = costo;
-                    mejorCandidato = candidato;
+                if (candidato != null && !candidato.isEmpty()) {
+                    if (esCaminoNuevo(candidato, caminosPrevios)) {
+                        double costo = calcularCosto(grafo, candidato, criterio);
+                        if (costo < mejorCosto) {
+                            mejorCosto = costo;
+                            mejorCandidato = candidato;
+                        }
+                    }
                 }
             }
         }
@@ -171,11 +204,17 @@ public class Dijkstra {
     private static double calcularCosto(GrafoTransporte grafo, List<Parada> camino, Criterio criterio) {
         double total = 0;
         for (int i = 0; i < camino.size() - 1; i++) {
-            for (Ruta r : grafo.obtenerVecinos(camino.get(i))) {
+            boolean encontrada = false;
+            Iterator<Ruta> it = grafo.obtenerVecinos(camino.get(i)).iterator();
+
+            while (it.hasNext() && !encontrada) {
+                Ruta r = it.next();
                 if (r.getDestino().equals(camino.get(i + 1))) {
                     Object peso = r.getPeso(criterio);
-                    if (peso instanceof Number) total += ((Number) peso).doubleValue();
-                    break;
+                    if (peso instanceof Number) {
+                        total += ((Number) peso).doubleValue();
+                    }
+                    encontrada = true;
                 }
             }
         }
