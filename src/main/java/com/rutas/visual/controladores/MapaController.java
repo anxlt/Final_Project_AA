@@ -17,6 +17,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import com.brunomnsilva.smartgraph.graphview.SmartLabelProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +36,7 @@ public class MapaController {
 
     @FXML private AnchorPane rootPane;
     @FXML private ComboBox<Criterio> cmbCriterio;
-    @FXML private Label lblTiempo;
-    @FXML private Label lblCosto;
-    @FXML private Label lblDistancia;
-    @FXML private Label lblTransbordos;
+    @FXML private ComboBox<String>   cmbAlgoritmo;
     @FXML private Label lblOrigen;
     @FXML private Label lblDestino;
     @FXML private Button btnAlternativo;
@@ -47,38 +47,56 @@ public class MapaController {
     private Parada paradaOrigen  = null;
     private Parada paradaDestino = null;
     private List<Parada> rutaOptima = new ArrayList<>();
-
     private List<List<Parada>> caminosPrevios = new ArrayList<>();
 
     @FXML
     public void initialize() {
         btnAlternativo.setDisable(true);
+
         cmbCriterio.setItems(FXCollections.observableArrayList(Criterio.values()));
         configurarCeldaCriterio();
         cmbCriterio.getSelectionModel().selectFirst();
+
+        cmbAlgoritmo.setItems(FXCollections.observableArrayList(
+                "Dijkstra","Bellman-Ford"
+        ));
+        cmbAlgoritmo.getSelectionModel().selectFirst();
+        cmbAlgoritmo.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((item == null || empty) ? null : item);
+                setStyle("-fx-text-fill: white; -fx-background-color: #1B3C53;");
+            }
+        });
+        cmbAlgoritmo.setCellFactory(lv -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((item == null || empty) ? null : item);
+                if (item != null) setStyle("-fx-text-fill: black;");
+            }
+        });
+
+
         cargarGrafo();
     }
 
-      /*
+    /*
         Nombre: configurarCeldaCriterio
         Argumentos: Ninguno.
         Objetivo: Configurar el ComboBox de criterios para mostrar los valores del enum
                   con la primera letra en mayúscula y el resto en minúscula.
         Retorno: (void) No retorna valor.
      */
-
     private void configurarCeldaCriterio() {
-        Callback<ListView<Criterio>, ListCell<Criterio>> factory = new Callback<ListView<Criterio>, ListCell<Criterio>>() {
+        Callback<ListView<Criterio>, ListCell<Criterio>> factory = lv -> new ListCell<Criterio>() {
             @Override
-            public ListCell<Criterio> call(ListView<Criterio> lv) {
-                return new ListCell<Criterio>() {
-                    @Override
-                    protected void updateItem(Criterio item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText((item == null || empty) ? null : item.name().charAt(0) + item.name().substring(1).toLowerCase());
-                        if (item != null) setStyle("-fx-text-fill: black;");
-                    }
-                };
+            protected void updateItem(Criterio item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((item == null || empty) ? null
+                        : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                if (item != null) setStyle("-fx-text-fill: black;");
             }
         };
         cmbCriterio.setCellFactory(factory);
@@ -86,7 +104,8 @@ public class MapaController {
             @Override
             protected void updateItem(Criterio item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((item == null || empty) ? null : item.name().charAt(0) + item.name().substring(1).toLowerCase());
+                setText((item == null || empty) ? null
+                        : item.name().charAt(0) + item.name().substring(1).toLowerCase());
                 setStyle("-fx-text-fill: white; -fx-background-color: #1B3C53;");
             }
         });
@@ -96,10 +115,8 @@ public class MapaController {
         paradaOrigen  = null;
         paradaDestino = null;
         rutaOptima    = new ArrayList<>();
-        if (btnAlternativo != null) {
-            btnAlternativo.setDisable(true);
-        }
-        limpiarResultados();
+        caminosPrevios = new ArrayList<>();
+        if (btnAlternativo != null) btnAlternativo.setDisable(true);
         actualizarLabels();
         cargarGrafo();
     }
@@ -112,7 +129,6 @@ public class MapaController {
                   de doble click para seleccionar paradas.
         Retorno: (void) No retorna valor.
      */
-
     private void cargarGrafo() {
         if (graphView != null) rootPane.getChildren().remove(graphView);
 
@@ -129,40 +145,30 @@ public class MapaController {
             }
         }
 
-        SmartGraphProperties props = new SmartGraphProperties(getClass().getResourceAsStream("/smartgraph.properties"));
+        SmartGraphProperties props = new SmartGraphProperties(
+                getClass().getResourceAsStream("/smartgraph.properties"));
         graphView = new SmartGraphPanel<>(digraph, props, new SmartCircularSortedPlacementStrategy());
         graphView.getStylesheets().clear();
         graphView.getStylesheets().add(getClass().getResource("/smartgraph.css").toExternalForm());
         graphView.setAutomaticLayout(true);
-        graphView.setVertexDoubleClickAction(new Consumer<SmartGraphVertex<Parada>>() {
-            @Override
-            public void accept(SmartGraphVertex<Parada> v) {
-                evaluarSeleccion(v.getUnderlyingVertex().element());
-            }
-        });
+        graphView.setVertexDoubleClickAction(v -> evaluarSeleccion(v.getUnderlyingVertex().element()));
 
         AnchorPane.setTopAnchor(graphView, 0.0);
         AnchorPane.setLeftAnchor(graphView, 0.0);
         AnchorPane.setRightAnchor(graphView, 0.0);
-        AnchorPane.setBottomAnchor(graphView, 70.0);
+        AnchorPane.setBottomAnchor(graphView, 52.0);   // altura de la nueva barra
         rootPane.getChildren().add(0, graphView);
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                graphView.init();
-                PauseTransition pause = new PauseTransition(Duration.millis(500));
-                pause.setOnFinished(new javafx.event.EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent e) {
-                        graphView.update();
-                        aplicarEstiloBase();
-                        aplicarEstiloAristasBase();
-                        registrarTooltipsAristas();
-                    }
-                });
-                pause.play();
-            }
+        Platform.runLater(() -> {
+            graphView.init();
+            PauseTransition pause = new PauseTransition(Duration.millis(500));
+            pause.setOnFinished(e -> {
+                graphView.update();
+                aplicarEstiloBase();
+                aplicarEstiloAristasBase();
+                actualizarEtiquetasAristas();
+            });
+            pause.play();
         });
     }
 
@@ -172,11 +178,9 @@ public class MapaController {
         Objetivo: Restablecer el estilo visual predeterminado en todos los vértices del grafo.
         Retorno: (void) No retorna valor.
      */
-
     private void aplicarEstiloBase() {
-        for (Parada p : ServicioGrafo.get().getParadas()) {
+        for (Parada p : ServicioGrafo.get().getParadas())
             aplicarEstiloVertice(p, ESTILO_BASE);
-        }
     }
 
     /*
@@ -185,13 +189,10 @@ public class MapaController {
         Objetivo: Restablecer el estilo visual predeterminado en todas las aristas del grafo.
         Retorno: (void) No retorna valor.
      */
-
     private void aplicarEstiloAristasBase() {
-        for (Parada p : ServicioGrafo.get().getParadas()) {
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+        for (Parada p : ServicioGrafo.get().getParadas())
+            for (Ruta r : ServicioGrafo.get().getRutas(p))
                 aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
-            }
-        }
     }
 
     /*
@@ -203,17 +204,14 @@ public class MapaController {
                   incluyendo sus nodos hijos.
         Retorno: (void) No retorna valor.
      */
-
     private void aplicarEstiloVertice(Parada parada, String estilo) {
         SmartStylableNode stylable = graphView.getStylableVertex(parada);
         if (stylable instanceof Node) {
             Node nodo = (Node) stylable;
             nodo.setStyle(estilo);
             if (nodo instanceof javafx.scene.Parent) {
-                javafx.scene.Parent parent = (javafx.scene.Parent) nodo;
-                for (Node hijo : parent.getChildrenUnmodifiable()) {
+                for (Node hijo : ((javafx.scene.Parent) nodo).getChildrenUnmodifiable())
                     hijo.setStyle(estilo);
-                }
             }
         }
     }
@@ -226,12 +224,9 @@ public class MapaController {
         Objetivo: Aplicar un estilo CSS inline a la arista SmartGraph correspondiente a una ruta.
         Retorno: (void) No retorna valor.
      */
-
     private void aplicarEstiloArista(Ruta ruta, String estilo) {
         SmartStylableNode arista = graphView.getStylableEdge(ruta);
-        if (arista instanceof Node) {
-            aplicarEstiloRecursivo((Node) arista, estilo);
-        }
+        if (arista instanceof Node) aplicarEstiloRecursivo((Node) arista, estilo);
     }
 
     /*
@@ -243,31 +238,21 @@ public class MapaController {
                   a todas las formas que no sean círculos (para no afectar los vértices).
         Retorno: (void) No retorna valor.
      */
-
     private void aplicarEstiloRecursivo(Node node, String estilo) {
-        if (node instanceof javafx.scene.shape.Shape && !(node instanceof javafx.scene.shape.Circle)) {
-            javafx.scene.shape.Shape shape = (javafx.scene.shape.Shape) node;
-            shape.setStyle(estilo);
-        }
-        if (node instanceof javafx.scene.Parent) {
-            javafx.scene.Parent parent = (javafx.scene.Parent) node;
-            for (Node hijo : parent.getChildrenUnmodifiable()) {
+        if (node instanceof javafx.scene.shape.Shape && !(node instanceof javafx.scene.shape.Circle))
+            ((javafx.scene.shape.Shape) node).setStyle(estilo);
+        if (node instanceof javafx.scene.Parent)
+            for (Node hijo : ((javafx.scene.Parent) node).getChildrenUnmodifiable())
                 aplicarEstiloRecursivo(hijo, estilo);
-            }
-        }
     }
 
     /*
         Nombre: evaluarSeleccion
         Argumentos:
             (Parada) parada: Representa la parada sobre la que el usuario hizo doble click.
-        Objetivo: Gestionar la selección de origen y destino en el mapa. Si la parada ya es
-                  el origen o destino activo, la deselecciona. Si no hay origen, la asigna
-                  como tal; si no hay destino, como destino. Si ambos ya están asignados,
-                  reinicia la selección y asigna la nueva parada como origen.
+        Objetivo: Gestionar la selección de origen y destino en el mapa.
         Retorno: (void) No retorna valor.
      */
-
     private void evaluarSeleccion(Parada parada) {
         if (paradaOrigen != null && paradaOrigen.equals(parada)) {
             aplicarEstiloVertice(parada, ESTILO_BASE);
@@ -330,7 +315,6 @@ public class MapaController {
             rutaOptima = new ArrayList<>();
             caminosPrevios = new ArrayList<>();
             limpiarEstilosRuta();
-            limpiarResultados();
             mostrarAlerta("Sin ruta", "No existe ruta entre " + paradaOrigen.getNombreParada()
                     + " y " + paradaDestino.getNombreParada() + " con el criterio seleccionado.");
             return;
@@ -341,28 +325,6 @@ public class MapaController {
         caminosPrevios.add(camino);
         btnAlternativo.setDisable(false);
         estilizarRutaOptima();
-
-        double totalTiempo = 0, totalCosto = 0, totalDistancia = 0, totalTransbordos = 0;
-        for (int i = 0; i < camino.size() - 1; i++) {
-            for (Ruta ruta : ServicioGrafo.get().obtenerVecinos(camino.get(i))) {
-                if (ruta.getDestino().equals(camino.get(i + 1))) {
-                    Object pt  = ruta.getPeso(Criterio.TIEMPO);
-                    Object pc  = ruta.getPeso(Criterio.COSTO);
-                    Object pd  = ruta.getPeso(Criterio.DISTANCIA);
-                    Object ptr = ruta.getPeso(Criterio.TRANSBORDOS);
-                    if (pt  instanceof Number) totalTiempo      += ((Number) pt).doubleValue();
-                    if (pc  instanceof Number) totalCosto       += ((Number) pc).doubleValue();
-                    if (pd  instanceof Number) totalDistancia   += ((Number) pd).doubleValue();
-                    if (ptr instanceof Number) totalTransbordos += ((Number) ptr).doubleValue();
-                    break;
-                }
-            }
-        }
-
-        lblTiempo.setText(String.format("%.1f min", totalTiempo));
-        lblCosto.setText(String.format("$%.2f", totalCosto));
-        lblDistancia.setText(String.format("%.1f km", totalDistancia));
-        lblTransbordos.setText(String.valueOf((int) totalTransbordos));
     }
 
     @FXML
@@ -391,67 +353,39 @@ public class MapaController {
         caminosPrevios.add(alternativo);
         rutaOptima = alternativo;
         estilizarRutaOptima();
-
-        double totalTiempo = 0, totalCosto = 0, totalDistancia = 0, totalTransbordos = 0;
-        for (int i = 0; i < alternativo.size() - 1; i++) {
-            for (Ruta ruta : ServicioGrafo.get().obtenerVecinos(alternativo.get(i))) {
-                if (ruta.getDestino().equals(alternativo.get(i + 1))) {
-                    Object pt  = ruta.getPeso(Criterio.TIEMPO);
-                    Object pc  = ruta.getPeso(Criterio.COSTO);
-                    Object pd  = ruta.getPeso(Criterio.DISTANCIA);
-                    Object ptr = ruta.getPeso(Criterio.TRANSBORDOS);
-                    if (pt  instanceof Number) totalTiempo      += ((Number) pt).doubleValue();
-                    if (pc  instanceof Number) totalCosto       += ((Number) pc).doubleValue();
-                    if (pd  instanceof Number) totalDistancia   += ((Number) pd).doubleValue();
-                    if (ptr instanceof Number) totalTransbordos += ((Number) ptr).doubleValue();
-                    break;
-                }
-            }
-        }
-
-        lblTiempo.setText(String.format("%.1f min", totalTiempo));
-        lblCosto.setText(String.format("$%.2f", totalCosto));
-        lblDistancia.setText(String.format("%.1f km", totalDistancia));
-        lblTransbordos.setText(String.valueOf((int) totalTransbordos));
-
     }
-
 
     @FXML
     public void handleLimpiar(ActionEvent e) {
         limpiarSeleccion();
-        limpiarResultados();
         caminosPrevios = new ArrayList<>();
         btnAlternativo.setDisable(true);
     }
 
     /*
-        Nombre: registrarTooltipsAristas
-        Argumentos: Ninguno.
-        Objetivo: Registrar tooltips informativos en cada arista del grafo visual,
-                  mostrando el nombre de la ruta y sus pesos al pasar el cursor.
-        Retorno: (void) No retorna valor.
-     */
+    Nombre: actualizarEtiquetasAristas
+    Argumentos: Ninguno.
+    Objetivo: Actualizar las etiquetas visibles de cada arista según el criterio
+              actualmente seleccionado en el ComboBox.
+    Retorno: (void) No retorna valor.
+ */
+    private void actualizarEtiquetasAristas() {
+        Criterio criterio = cmbCriterio.getValue();
+        if (graphView == null || criterio == null) return;
 
-    private void registrarTooltipsAristas() {
-        for (Parada p : ServicioGrafo.get().getParadas()) {
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
-                try {
-                    SmartStylableNode edge = graphView.getStylableEdge(r);
-                    if (!(edge instanceof javafx.scene.Node)) continue;
-                    javafx.scene.Node nodoEdge = (javafx.scene.Node) edge;
-                    String texto = r.getNombre() + "\n"
-                            + "Tiempo: "      + r.getPeso(Criterio.TIEMPO)      + " min\n"
-                            + "Costo: $"      + r.getPeso(Criterio.COSTO)       + "\n"
-                            + "Distancia: "   + r.getPeso(Criterio.DISTANCIA)   + " km\n"
-                            + "Transbordos: " + r.getPeso(Criterio.TRANSBORDOS);
-                    Tooltip tooltip = new Tooltip(texto);
-                    tooltip.setStyle("-fx-font-size: 11px; -fx-background-color: #1B3C53; -fx-text-fill: white;");
-                    tooltip.setShowDelay(javafx.util.Duration.millis(100));
-                    Tooltip.install(nodoEdge, tooltip);
-                } catch (Exception ignored) {}
+        graphView.setEdgeLabelProvider(new SmartLabelProvider<Ruta>() {
+            @Override
+            public String valueFor(Ruta ruta) {
+                return String.valueOf(ruta.getPeso(criterio));
             }
-        }
+        });
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                graphView.update();
+            }
+        });
     }
 
     /*
@@ -461,7 +395,6 @@ public class MapaController {
                   diferenciados a los vértices intermedios y a las aristas del camino.
         Retorno: (void) No retorna valor.
      */
-
     private void estilizarRutaOptima() {
         List<Parada> camino = new ArrayList<>(rutaOptima);
         limpiarEstilosRuta();
@@ -485,7 +418,6 @@ public class MapaController {
                   preservando el estilo de los nodos origen y destino actualmente seleccionados.
         Retorno: (void) No retorna valor.
      */
-
     private void limpiarEstilosRuta() {
         if (graphView == null) return;
         for (Parada p : ServicioGrafo.get().getParadas()) {
@@ -493,11 +425,9 @@ public class MapaController {
             if (paradaDestino != null && paradaDestino.equals(p)) continue;
             aplicarEstiloVertice(p, ESTILO_BASE);
         }
-        for (Parada p : ServicioGrafo.get().getParadas()) {
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+        for (Parada p : ServicioGrafo.get().getParadas())
+            for (Ruta r : ServicioGrafo.get().getRutas(p))
                 aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
-            }
-        }
         rutaOptima = new ArrayList<>();
     }
 
@@ -508,7 +438,6 @@ public class MapaController {
                   del grafo y limpiar las etiquetas de selección.
         Retorno: (void) No retorna valor.
      */
-
     private void limpiarSeleccion() {
         if (paradaOrigen  != null) { aplicarEstiloVertice(paradaOrigen,  ESTILO_BASE); paradaOrigen  = null; }
         if (paradaDestino != null) { aplicarEstiloVertice(paradaDestino, ESTILO_BASE); paradaDestino = null; }
@@ -523,11 +452,9 @@ public class MapaController {
         Objetivo: Buscar y retornar el vértice SmartGraph que corresponde a una parada específica.
         Retorno: (Vertex<Parada>) Retorna el vértice encontrado, o null si no existe.
      */
-
     private Vertex<Parada> encontrarVertice(Parada parada) {
-        for (Vertex<Parada> v : digraph.vertices()) {
+        for (Vertex<Parada> v : digraph.vertices())
             if (v.element().equals(parada)) return v;
-        }
         return null;
     }
 
@@ -538,25 +465,9 @@ public class MapaController {
                   las paradas actualmente seleccionadas.
         Retorno: (void) No retorna valor.
      */
-
     private void actualizarLabels() {
         lblOrigen.setText(paradaOrigen   != null ? paradaOrigen.getNombreParada()  : "Ninguno");
         lblDestino.setText(paradaDestino != null ? paradaDestino.getNombreParada() : "Ninguno");
-    }
-
-    /*
-        Nombre: limpiarResultados
-        Argumentos: Ninguno.
-        Objetivo: Restablecer las etiquetas de resultados (tiempo, costo, distancia, transbordos)
-                  a su estado inicial mostrando un guion.
-        Retorno: (void) No retorna valor.
-     */
-
-    private void limpiarResultados() {
-        lblTiempo.setText("-");
-        lblCosto.setText("-");
-        lblDistancia.setText("-");
-        lblTransbordos.setText("-");
     }
 
     /*
@@ -567,7 +478,6 @@ public class MapaController {
         Objetivo: Mostrar un diálogo de información al usuario con un título y mensaje específicos.
         Retorno: (void) No retorna valor.
      */
-
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
