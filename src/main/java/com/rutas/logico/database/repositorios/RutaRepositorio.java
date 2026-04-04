@@ -14,26 +14,25 @@ public class RutaRepositorio {
 
     private final StatementService<Ruta> service = StatementService.getInstance();
 
-    public void insertar(Ruta ruta) {
-        service.executeUpdate(ruta, new PreparedStatementMapper<>() {
+    public int insertar(Ruta ruta) {
+        return service.executeUpdateAndGetId(ruta, new PreparedStatementMapper<>() {
             @Override
             public int execute(Ruta r, PreparedStatement ps) throws SQLException {
-                ps.setString(1, r.getId());
-                ps.setString(2, r.getNombre());
-                ps.setString(3, r.getOrigen().getCodigo());
-                ps.setString(4, r.getDestino().getCodigo());
-                ps.setDouble(5, toDouble(r.getPeso(Criterio.TIEMPO)));
-                ps.setDouble(6, toDouble(r.getPeso(Criterio.COSTO)));
-                ps.setDouble(7, toDouble(r.getPeso(Criterio.DISTANCIA)));
-                ps.setInt   (8, toInt(r.getPeso(Criterio.TRANSBORDOS)));
+                ps.setString(1, r.getNombre());
+                ps.setInt(2, Integer.parseInt(r.getOrigen().getCodigo()));
+                ps.setInt(3, Integer.parseInt(r.getDestino().getCodigo()));
+                ps.setDouble(4, toDouble(r.getPeso(Criterio.TIEMPO)));
+                ps.setDouble(5, toDouble(r.getPeso(Criterio.COSTO)));
+                ps.setDouble(6, toDouble(r.getPeso(Criterio.DISTANCIA)));
+                ps.setInt   (7, toInt(r.getPeso(Criterio.TRANSBORDOS)));
                 return ps.executeUpdate();
             }
             @Override
             public String query() {
                 return """
-                       INSERT INTO rutas (id, nombre, origen, destino, tiempo, costo, distancia, transbordos)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                       """;
+                   INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)
+                   """;
             }
         });
     }
@@ -43,22 +42,22 @@ public class RutaRepositorio {
             @Override
             public int execute(Ruta r, PreparedStatement ps) throws SQLException {
                 ps.setString(1, r.getNombre());
-                ps.setString(2, r.getOrigen().getCodigo());
-                ps.setString(3, r.getDestino().getCodigo());
+                ps.setInt(2, Integer.parseInt(r.getOrigen().getCodigo()));
+                ps.setInt(3, Integer.parseInt(r.getDestino().getCodigo()));
                 ps.setDouble(4, toDouble(r.getPeso(Criterio.TIEMPO)));
                 ps.setDouble(5, toDouble(r.getPeso(Criterio.COSTO)));
                 ps.setDouble(6, toDouble(r.getPeso(Criterio.DISTANCIA)));
                 ps.setInt   (7, toInt(r.getPeso(Criterio.TRANSBORDOS)));
-                ps.setString(8, r.getId());
+                ps.setInt   (8, Integer.parseInt(r.getId()));
                 return ps.executeUpdate();
             }
             @Override
             public String query() {
                 return """
-                       UPDATE rutas
-                       SET nombre=?, origen=?, destino=?, tiempo=?, costo=?, distancia=?, transbordos=?
-                       WHERE id=?
-                       """;
+                   UPDATE rutas
+                   SET nombre=?, origen=?, destino=?, tiempo=?, costo=?, distancia=?, transbordos=?
+                   WHERE id=?
+                   """;
             }
         });
     }
@@ -67,7 +66,7 @@ public class RutaRepositorio {
         service.executeUpdate(ruta, new PreparedStatementMapper<>() {
             @Override
             public int execute(Ruta r, PreparedStatement ps) throws SQLException {
-                ps.setString(1, r.getId());
+                ps.setInt(1, Integer.parseInt(r.getId()));
                 return ps.executeUpdate();
             }
             @Override
@@ -90,4 +89,5 @@ public class RutaRepositorio {
         if (val instanceof Number n) return n.intValue();
         return 0;
     }
+
 }

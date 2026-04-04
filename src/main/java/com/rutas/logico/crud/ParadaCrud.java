@@ -15,12 +15,6 @@ public class ParadaCrud {
 
     public ParadaCrud(GrafoTransporte grafo) {
         this.grafo = grafo;
-        for (Parada p : grafo.getParadas()) {
-            try {
-                int num = Integer.parseInt(p.getCodigo());
-                if (num > contador) contador = num;
-            } catch (NumberFormatException ignored) {}
-        }
     }
 
     /*
@@ -37,12 +31,10 @@ public class ParadaCrud {
         if (nombre == null || nombre.isBlank() || tipo == null)
             return false;
 
-        contador++;
-        String codigo = String.valueOf(contador);
-        Parada nueva = new Parada(codigo, nombre, tipo, ubicacion);
+        Parada nueva = new Parada(null, nombre, tipo, ubicacion);
+        int idGenerado = repo.insertar(nueva);
+        nueva.setCodigo(String.valueOf(idGenerado));
         grafo.agregarParada(nueva);
-        repo.insertar(nueva);
-
         return true;
     }
 

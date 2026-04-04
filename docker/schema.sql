@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS paradas
 (
-    codigo    VARCHAR(20)  NOT NULL,
+    codigo    SERIAL  NOT NULL,
     nombre    VARCHAR(100) NOT NULL,
     tipo      VARCHAR(50)  NOT NULL,
     ubicacion VARCHAR(200),
@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS paradas
 
 CREATE TABLE IF NOT EXISTS rutas
 (
-    id          VARCHAR(20)  NOT NULL,
+    id          SERIAL NOT NULL,
     nombre      VARCHAR(100) NOT NULL,
-    origen      VARCHAR(20)  NOT NULL,
-    destino     VARCHAR(20)  NOT NULL,
+    origen      INTEGER  NOT NULL,
+    destino     INTEGER  NOT NULL,
     tiempo      DOUBLE PRECISION,
     costo       DOUBLE PRECISION,
     distancia   DOUBLE PRECISION,

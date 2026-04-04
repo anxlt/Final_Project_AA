@@ -9,8 +9,21 @@ import java.util.*;
 public class GrafoTransporte {
 
     private final Digraph<Parada, Ruta> grafo = new DigraphEdgeList<>();
-    private final Map<String, Vertex<Parada>> verticesPorCodigo = new HashMap<>();
 
+
+    /*
+        Nombre: buscarVertice
+        Argumentos:
+            (String) codigo: Código de la parada a buscar.
+        Objetivo: Recorrer los vértices del grafo y retornar el que coincida con el código dado.
+        Retorno: (Vertex<Parada>) Retorna el vértice encontrado, o null si no existe.
+     */
+
+    private Vertex<Parada> buscarVertice(String codigo) {
+        for (Vertex<Parada> v : grafo.vertices())
+            if (v.element().getCodigo().equals(codigo)) return v;
+        return null;
+    }
 
     /*
         Nombre: agregarParada
@@ -21,9 +34,8 @@ public class GrafoTransporte {
      */
 
     public void agregarParada(Parada parada) {
-        if (verticesPorCodigo.containsKey(parada.getCodigo())) return;
-        Vertex<Parada> v = grafo.insertVertex(parada);
-        verticesPorCodigo.put(parada.getCodigo(), v);
+        if (buscarVertice(parada.getCodigo()) != null) return;
+        grafo.insertVertex(parada);
     }
 
     /*
@@ -35,7 +47,7 @@ public class GrafoTransporte {
      */
 
     public void eliminarParada(Parada parada) {
-        Vertex<Parada> v = verticesPorCodigo.remove(parada.getCodigo());
+        Vertex<Parada> v = buscarVertice(parada.getCodigo());
         if (v != null) grafo.removeVertex(v);
     }
 
@@ -48,7 +60,7 @@ public class GrafoTransporte {
      */
 
     public boolean existeParada(Parada parada) {
-        return verticesPorCodigo.containsKey(parada.getCodigo());
+        return buscarVertice(parada.getCodigo()) != null;
     }
 
     /*
@@ -60,7 +72,7 @@ public class GrafoTransporte {
     */
 
     public Parada getParada(Parada clave) {
-        Vertex<Parada> v = verticesPorCodigo.get(clave.getCodigo());
+        Vertex<Parada> v = buscarVertice(clave.getCodigo());
         return v != null ? v.element() : null;
     }
 
@@ -91,7 +103,7 @@ public class GrafoTransporte {
 
     public void modificarParada(Parada parada, String nuevoNombre,
                                 String nuevaUbicacion, TipoParada nuevoTipo) {
-        Vertex<Parada> v = verticesPorCodigo.get(parada.getCodigo());
+        Vertex<Parada> v = buscarVertice(parada.getCodigo());
         if (v == null) return;
         v.element().setNombreParada(nuevoNombre);
         v.element().setUbicacion(nuevaUbicacion);
@@ -107,8 +119,8 @@ public class GrafoTransporte {
      */
 
     public void agregarRuta(Ruta ruta) {
-        Vertex<Parada> origen  = verticesPorCodigo.get(ruta.getOrigen().getCodigo());
-        Vertex<Parada> destino = verticesPorCodigo.get(ruta.getDestino().getCodigo());
+        Vertex<Parada> origen  = buscarVertice(ruta.getOrigen().getCodigo());
+        Vertex<Parada> destino = buscarVertice(ruta.getDestino().getCodigo());
         if (origen == null || destino == null) return;
         grafo.insertEdge(origen, destino, ruta);
     }
@@ -161,7 +173,7 @@ public class GrafoTransporte {
      */
 
     public List<Ruta> obtenerVecinos(Parada parada) {
-        Vertex<Parada> v = verticesPorCodigo.get(parada.getCodigo());
+        Vertex<Parada> v = buscarVertice(parada.getCodigo());
         if (v == null) return Collections.emptyList();
         List<Ruta> resultado = new ArrayList<>();
         for (Edge<Ruta, Parada> e : grafo.outboundEdges(v))

@@ -1,5 +1,8 @@
 .graph {
-    -fx-background-color: #E3E3E3;
+    -fx-background-image: url('/Images/graphSajoma.png');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
 }
 
 .vertex-label {

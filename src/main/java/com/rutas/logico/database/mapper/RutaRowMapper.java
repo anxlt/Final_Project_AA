@@ -13,9 +13,18 @@ public class RutaRowMapper implements RowMapper<Ruta> {
 
     @Override
     public Ruta get(ResultSet rs) throws SQLException {
-        Parada origen  = new Parada(rs.getString("origen"),  "", TipoParada.BUS, "");
-        Parada destino = new Parada(rs.getString("destino"), "", TipoParada.BUS, "");
-
+        Parada origen  = new Parada(
+                String.valueOf(rs.getInt("origen")),
+                rs.getString("origen_nombre"),
+                TipoParada.valueOf(rs.getString("origen_tipo")),
+                rs.getString("origen_ubicacion")
+        );
+        Parada destino = new Parada(
+                String.valueOf(rs.getInt("destino")),
+                rs.getString("destino_nombre"),
+                TipoParada.valueOf(rs.getString("destino_tipo")),
+                rs.getString("destino_ubicacion")
+        );
         Ruta ruta = new Ruta(
                 rs.getString("id"),
                 rs.getString("nombre"),
@@ -31,6 +40,11 @@ public class RutaRowMapper implements RowMapper<Ruta> {
 
     @Override
     public String query() {
-        return "SELECT id, nombre, origen, destino, tiempo, costo, distancia, transbordos FROM rutas";
+        return "SELECT r.id, r.nombre, r.origen, r.destino, r.tiempo, r.costo, r.distancia, r.transbordos, "
+                + "po.nombre AS origen_nombre, po.tipo AS origen_tipo, po.ubicacion AS origen_ubicacion, "
+                + "pd.nombre AS destino_nombre, pd.tipo AS destino_tipo, pd.ubicacion AS destino_ubicacion "
+                + "FROM rutas r "
+                + "JOIN paradas po ON po.codigo = r.origen "
+                + "JOIN paradas pd ON pd.codigo = r.destino";
     }
 }

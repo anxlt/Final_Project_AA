@@ -13,19 +13,18 @@ public class ParadaRepositorio {
 
     private final StatementService<Parada> service = StatementService.getInstance();
 
-    public void insertar(Parada parada) {
-        service.executeUpdate(parada, new PreparedStatementMapper<>() {
+    public int insertar(Parada parada) {
+        return service.executeUpdateAndGetId(parada, new PreparedStatementMapper<>() {
             @Override
             public int execute(Parada p, PreparedStatement ps) throws SQLException {
-                ps.setString(1, p.getCodigo());
-                ps.setString(2, p.getNombreParada());
-                ps.setString(3, p.getTipo().name());
-                ps.setString(4, p.getUbicacion());
+                ps.setString(1, p.getNombreParada());
+                ps.setString(2, p.getTipo().name());
+                ps.setString(3, p.getUbicacion());
                 return ps.executeUpdate();
             }
             @Override
             public String query() {
-                return "INSERT INTO paradas (codigo, nombre, tipo, ubicacion) VALUES (?, ?, ?, ?)";
+                return "INSERT INTO paradas (nombre, tipo, ubicacion) VALUES (?, ?, ?)";
             }
         });
     }
@@ -37,7 +36,7 @@ public class ParadaRepositorio {
                 ps.setString(1, p.getNombreParada());
                 ps.setString(2, p.getTipo().name());
                 ps.setString(3, p.getUbicacion());
-                ps.setString(4, p.getCodigo());
+                ps.setInt(4, Integer.parseInt(p.getCodigo()));
                 return ps.executeUpdate();
             }
             @Override
@@ -51,7 +50,7 @@ public class ParadaRepositorio {
         service.executeUpdate(parada, new PreparedStatementMapper<>() {
             @Override
             public int execute(Parada p, PreparedStatement ps) throws SQLException {
-                ps.setString(1, p.getCodigo());
+                ps.setInt(1, Integer.parseInt(p.getCodigo()));
                 return ps.executeUpdate();
             }
             @Override

@@ -13,18 +13,9 @@ public class RutaCrud {
 
     private final GrafoTransporte grafo;
     private final RutaRepositorio repo = new RutaRepositorio();
-    private int contador = 0;
 
     public RutaCrud(GrafoTransporte grafo) {
         this.grafo = grafo;
-        for (Parada p : grafo.getParadas()) {
-            for (Ruta r : grafo.getRutas(p)) {
-                try {
-                    int num = Integer.parseInt(r.getId());
-                    if (num > contador) contador = num;
-                } catch (NumberFormatException ignored) {}
-            }
-        }
     }
 
     /*
@@ -48,14 +39,15 @@ public class RutaCrud {
         if (origen.equals(destino)) return false;
         if (existeRuta(origen, destino)) return false;
 
-        contador++;
-        Ruta ruta = new Ruta(String.valueOf(contador), nombre, origen, destino);
+        Ruta ruta = new Ruta(null, nombre, origen, destino);
         ruta.setPeso(Criterio.TIEMPO,      tiempo);
         ruta.setPeso(Criterio.COSTO,       costo);
         ruta.setPeso(Criterio.DISTANCIA,   distancia);
         ruta.setPeso(Criterio.TRANSBORDOS, transbordos);
+
+        int idGenerado = repo.insertar(ruta);
+        ruta.setId(String.valueOf(idGenerado));
         grafo.agregarRuta(ruta);
-        repo.insertar(ruta);
         return true;
     }
 

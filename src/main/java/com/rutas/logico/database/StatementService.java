@@ -49,4 +49,16 @@ public final class StatementService<T> {
         }
         return lista;
     }
+
+    public int executeUpdateAndGetId(T object, PreparedStatementMapper<T> mapper) {
+        try (Connection con = JdbcConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(mapper.query(), Statement.RETURN_GENERATED_KEYS)) {
+            mapper.execute(object, ps);
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) return rs.getInt(1);
+            throw new RuntimeException("No se generó ID");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
