@@ -2,7 +2,6 @@ package com.rutas.visual.controladores;
 
 import com.brunomnsilva.smartgraph.graph.*;
 import com.brunomnsilva.smartgraph.graphview.*;
-import com.rutas.logico.algoritmos.BellmanFord;
 import com.rutas.logico.algoritmos.Dijkstra;
 import com.rutas.logico.modelo.Criterio;
 import com.rutas.logico.modelo.Parada;
@@ -19,6 +18,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.beans.value.ChangeListener;
+import javafx.animation.FadeTransition;
+import javafx.event.EventHandler;
 import javafx.beans.value.ObservableValue;
 import com.brunomnsilva.smartgraph.graphview.SmartLabelProvider;
 
@@ -76,6 +77,15 @@ public class MapaController {
                 super.updateItem(item, empty);
                 setText((item == null || empty) ? null : item);
                 if (item != null) setStyle("-fx-text-fill: black;");
+            }
+        });
+
+        cmbCriterio.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Criterio>() {
+            @Override
+            public void changed(ObservableValue<? extends Criterio> obs, Criterio oldVal, Criterio newVal) {
+                if (newVal != null && graphView != null) {
+                    graphView.update();
+                }
             }
         });
 
@@ -152,24 +162,45 @@ public class MapaController {
         graphView.getStylesheets().clear();
         graphView.getStylesheets().add(getClass().getResource("/smartgraph.css").toExternalForm());
         graphView.setAutomaticLayout(true);
+        graphView.setEdgeLabelProvider(new SmartLabelProvider<Ruta>() {
+            @Override
+            public String valueFor(Ruta ruta) {
+                Criterio criterio = cmbCriterio.getValue();
+                if (criterio == null) return "";
+                Object peso = ruta.getPeso(criterio);
+                return peso != null ? String.valueOf(peso) : "";
+            }
+        });
         graphView.setVertexDoubleClickAction(v -> evaluarSeleccion(v.getUnderlyingVertex().element()));
 
         AnchorPane.setTopAnchor(graphView, 0.0);
         AnchorPane.setLeftAnchor(graphView, 0.0);
         AnchorPane.setRightAnchor(graphView, 0.0);
-        AnchorPane.setBottomAnchor(graphView, 52.0);
+        AnchorPane.setBottomAnchor(graphView, 52.0);   // altura de la nueva barra
         rootPane.getChildren().add(0, graphView);
 
-        Platform.runLater(() -> {
-            graphView.init();
-            PauseTransition pause = new PauseTransition(Duration.millis(500));
-            pause.setOnFinished(e -> {
-                graphView.update();
-                aplicarEstiloBase();
-                aplicarEstiloAristasBase();
-                actualizarEtiquetasAristas();
-            });
-            pause.play();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                graphView.setOpacity(0);
+                graphView.init();
+
+                PauseTransition pause = new PauseTransition(Duration.millis(500));
+                pause.setOnFinished(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        graphView.update();
+                        aplicarEstiloBase();
+                        aplicarEstiloAristasBase();
+
+                        FadeTransition fade = new FadeTransition(Duration.millis(300), graphView);
+                        fade.setFromValue(0);
+                        fade.setToValue(1);
+                        fade.play();
+                    }
+                });
+                pause.play();
+            }
         });
     }
 
@@ -310,19 +341,7 @@ public class MapaController {
             return;
         }
 
-        String algoritmo = cmbAlgoritmo.getValue();
-        if ("Dijkstra".equals(algoritmo) && tieneAristasNegativas(criterio)) {
-            mostrarAlerta("Algoritmo incompatible",
-                    "El grafo tiene aristas con peso negativo");
-            return;
-        }
-
-        List<Parada> camino = null;
-        if ("Bellman-Ford".equals(algoritmo)) {
-            camino = BellmanFord.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
-        } else if ("Dijkstra".equals(algoritmo)) {
-            camino = Dijkstra.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
-        }
+        List<Parada> camino = Dijkstra.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
 
         if (camino == null || camino.isEmpty()) {
             rutaOptima = new ArrayList<>();
@@ -353,14 +372,8 @@ public class MapaController {
             return;
         }
 
-        List<Parada> alternativo = null;
-        if ("Bellman-Ford".equals(cmbAlgoritmo.getValue())) {
-            alternativo = BellmanFord.ejecutarAlternativo(
-                    ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
-        } else if ("Dijkstra".equals(cmbAlgoritmo.getValue())) {
-            alternativo = Dijkstra.ejecutarAlternativo(
-                    ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
-        }
+        List<Parada> alternativo = Dijkstra.ejecutarAlternativo(
+                ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
 
         if (alternativo == null || alternativo.isEmpty()) {
             mostrarAlerta("Alternativo", "No hay más caminos alternativos disponibles.\n"
@@ -487,25 +500,6 @@ public class MapaController {
     private void actualizarLabels() {
         lblOrigen.setText(paradaOrigen   != null ? paradaOrigen.getNombreParada()  : "Ninguno");
         lblDestino.setText(paradaDestino != null ? paradaDestino.getNombreParada() : "Ninguno");
-    }
-
-    /*
-        Nombre: tieneAristasNegativas
-        Argumentos:
-            (Criterio) criterio: El criterio de peso a revisar.
-        Objetivo: Verificar si alguna arista del grafo tiene peso negativo para el criterio dado.
-        Retorno: (boolean) true si existe al menos una arista con peso negativo, false en caso contrario.
-     */
-    private boolean tieneAristasNegativas(Criterio criterio) {
-        for (Parada p : ServicioGrafo.get().getParadas()) {
-            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
-                Object pesoObj = r.getPeso(criterio);
-                if (pesoObj instanceof Number && ((Number) pesoObj).doubleValue() < 0) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /*
