@@ -2,7 +2,9 @@ package com.rutas.visual.controladores;
 
 import com.brunomnsilva.smartgraph.graph.*;
 import com.brunomnsilva.smartgraph.graphview.*;
+import com.rutas.logico.algoritmos.BellmanFord;
 import com.rutas.logico.algoritmos.Dijkstra;
+import com.rutas.logico.algoritmos.FloydWarshall;
 import com.rutas.logico.modelo.Criterio;
 import com.rutas.logico.modelo.Parada;
 import com.rutas.logico.modelo.Ruta;
@@ -60,7 +62,7 @@ public class MapaController {
         cmbCriterio.getSelectionModel().selectFirst();
 
         cmbAlgoritmo.setItems(FXCollections.observableArrayList(
-                "Dijkstra","Bellman-Ford"
+                "Dijkstra", "Bellman-Ford", "Floyd-Warshall"
         ));
         cmbAlgoritmo.getSelectionModel().selectFirst();
         cmbAlgoritmo.setButtonCell(new ListCell<String>() {
@@ -176,7 +178,7 @@ public class MapaController {
         AnchorPane.setTopAnchor(graphView, 0.0);
         AnchorPane.setLeftAnchor(graphView, 0.0);
         AnchorPane.setRightAnchor(graphView, 0.0);
-        AnchorPane.setBottomAnchor(graphView, 52.0);   // altura de la nueva barra
+        AnchorPane.setBottomAnchor(graphView, 52.0);
         rootPane.getChildren().add(0, graphView);
 
         Platform.runLater(new Runnable() {
@@ -320,17 +322,21 @@ public class MapaController {
     @FXML
     public void handleBuscar(ActionEvent e) {
         Criterio criterio = cmbCriterio.getValue();
+        String algoritmo  = cmbAlgoritmo.getValue();
 
-        if (paradaOrigen == null || paradaDestino == null || criterio == null) {
+        if (criterio == null || algoritmo == null) return;
+
+        if (ServicioGrafo.get().getParadas().size() < 2) {
+            mostrarAlerta("Sin paradas", "Debe haber al menos dos paradas para ejecutar el algoritmo.");
+            return;
+        }
+
+        if (paradaOrigen == null || paradaDestino == null) {
             mostrarAlerta("Selección incompleta", "Por favor haz doble click en un origen y un destino en el mapa.");
             return;
         }
         if (paradaOrigen.equals(paradaDestino)) {
             mostrarAlerta("Paradas iguales", "El origen y el destino no pueden ser la misma parada.");
-            return;
-        }
-        if (ServicioGrafo.get().getParadas().size() < 2) {
-            mostrarAlerta("Sin paradas", "Debe haber al menos dos paradas para buscar una ruta.");
             return;
         }
 
@@ -341,7 +347,20 @@ public class MapaController {
             return;
         }
 
-        List<Parada> camino = Dijkstra.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
+        if ("Dijkstra".equals(algoritmo) && tieneAristasNegativas(criterio)) {
+            mostrarAlerta("Algoritmo incompatible",
+                    "El grafo tiene aristas con peso negativo en el criterio seleccionado");
+            return;
+        }
+
+        List<Parada> camino = null;
+        if ("Dijkstra".equals(algoritmo)) {
+            camino = Dijkstra.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
+        } else if ("Bellman-Ford".equals(algoritmo)) {
+            camino = BellmanFord.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
+        } else if ("Floyd-Warshall".equals(algoritmo)) {
+            camino = FloydWarshall.ejecutar(ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio);
+        }
 
         if (camino == null || camino.isEmpty()) {
             rutaOptima = new ArrayList<>();
@@ -354,8 +373,7 @@ public class MapaController {
 
         caminosPrevios = new ArrayList<>();
         rutaOptima = camino;
-        caminosPrevios.add(camino);
-        btnAlternativo.setDisable(false);
+        btnAlternativo.setDisable(true);
         estilizarRutaOptima();
     }
 
@@ -372,8 +390,14 @@ public class MapaController {
             return;
         }
 
-        List<Parada> alternativo = Dijkstra.ejecutarAlternativo(
-                ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
+        List<Parada> alternativo = null;
+        if ("Dijkstra".equals(cmbAlgoritmo.getValue())) {
+            alternativo = Dijkstra.ejecutarAlternativo(
+                    ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
+        } else if ("Bellman-Ford".equals(cmbAlgoritmo.getValue())) {
+            alternativo = BellmanFord.ejecutarAlternativo(
+                    ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
+        }
 
         if (alternativo == null || alternativo.isEmpty()) {
             mostrarAlerta("Alternativo", "No hay más caminos alternativos disponibles.\n"
@@ -500,6 +524,22 @@ public class MapaController {
     private void actualizarLabels() {
         lblOrigen.setText(paradaOrigen   != null ? paradaOrigen.getNombreParada()  : "Ninguno");
         lblDestino.setText(paradaDestino != null ? paradaDestino.getNombreParada() : "Ninguno");
+    }
+
+    /*
+        Nombre: tieneAristasNegativas
+        Argumentos:
+            (Criterio) criterio: El criterio de peso a revisar.
+        Objetivo: Verificar si alguna arista del grafo tiene peso negativo para el criterio dado.
+        Retorno: (boolean) true si existe al menos una arista con peso negativo.
+     */
+    private boolean tieneAristasNegativas(Criterio criterio) {
+        for (Parada p : ServicioGrafo.get().getParadas())
+            for (Ruta r : ServicioGrafo.get().getRutas(p)) {
+                Object pesoObj = r.getPeso(criterio);
+                if (pesoObj instanceof Number && ((Number) pesoObj).doubleValue() < 0) return true;
+            }
+        return false;
     }
 
     /*
