@@ -1,0 +1,21 @@
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Terminal Central',   'BUS', '');
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Estación Norte',     'BUS', '');
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Puerto Marítimo',    'BUS', '');
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Aeropuerto',         'BUS', '');
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Zona Industrial',    'BUS', '');
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Centro Comercial',   'BUS', '');
+INSERT INTO paradas (nombre, tipo, ubicacion) VALUES ('Parque Logístico',   'BUS', '');
+
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 1',  1, 2, 15,  8,    12.5, 0);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 2',  1, 3, 40,  20,   35,   1);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 3',  2, 4, 25,  15,   22,   0);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 4',  2, 5, 30,  10,   18,   1);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 5',  3, 5, 20,  12,   15,   0);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 6',  4, 6, 10,  5,    8,    0);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 7',  5, 6, 35,  18,   28,   1);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 8',  5, 7, 45,  22,   40,   2);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 9',  6, 7, 20,  9,    14,   0);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 10', 7, 1, 50,  25,   45,   1);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 11', 3, 2, -10, -5,   0,    0);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 12', 4, 1, -20, -12,  0,    1);
+INSERT INTO rutas (nombre, origen, destino, tiempo, costo, distancia, transbordos) VALUES ('Ruta 13', 6, 5, -15, -8,   0,    0);
