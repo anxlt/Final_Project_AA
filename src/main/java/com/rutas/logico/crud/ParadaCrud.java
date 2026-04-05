@@ -11,7 +11,6 @@ public class ParadaCrud {
 
     private final GrafoTransporte grafo;
     private final ParadaRepositorio repo = new ParadaRepositorio();
-    private int contador = 0;
 
     public ParadaCrud(GrafoTransporte grafo) {
         this.grafo = grafo;

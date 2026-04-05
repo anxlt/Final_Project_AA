@@ -1,5 +1,7 @@
 package com.rutas.logico.database;
 
+import com.rutas.logico.excepciones.DatabaseInitializationException;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,9 +42,9 @@ public class DatabaseInitializer {
              Statement st = con.createStatement()) {
             st.execute(sqlParadas);
             st.execute(sqlRutas);
-            System.out.println("[DB] Tablas verificadas correctamente.");
+            System.out.println("Tablas verificadas correctamente.");
         } catch (SQLException e) {
-            System.err.println("[DB] Error al inicializar tablas: " + e.getMessage());
+            throw new DatabaseInitializationException(e);
         }
     }
 }
