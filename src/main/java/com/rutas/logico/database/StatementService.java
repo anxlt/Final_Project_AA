@@ -27,17 +27,6 @@ public final class StatementService<T> {
         }
     }
 
-    public T getOne(RowMapper<T> rowMapper) {
-        try (Connection con = JdbcConnection.getConnection();
-             Statement st  = con.createStatement();
-             ResultSet rs  = st.executeQuery(rowMapper.query())) {
-            if (rs.next()) return rowMapper.get(rs);
-            return null;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public List<T> getAll(RowMapper<T> rowMapper) {
         List<T> lista = new ArrayList<>();
         try (Connection con = JdbcConnection.getConnection();

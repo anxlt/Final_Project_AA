@@ -60,17 +60,18 @@ public class PrincipalController {
         TipoParada[] tipos = TipoParada.values();
         lblTiposCount.setText(tipos.length + " tipos");
 
-        int maxConteo = 1;
+        int total = paradas.size();
+        if (total == 0) return;
+
         int[] conteos = new int[tipos.length];
         for (int i = 0; i < tipos.length; i++) {
             for (Parada p : paradas) {
                 if (p.getTipo() == tipos[i]) conteos[i]++;
             }
-            if (conteos[i] > maxConteo) maxConteo = conteos[i];
         }
 
         for (int i = 0; i < tipos.length; i++) {
-            double progreso = (double) conteos[i] / maxConteo;
+            double progreso = (double) conteos[i] / total;
 
             Label lblNombre = new Label(tipos[i].getNombre());
             lblNombre.setPrefWidth(60);
