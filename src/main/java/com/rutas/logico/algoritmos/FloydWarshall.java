@@ -9,7 +9,21 @@ import java.util.*;
 
 public class FloydWarshall {
 
+    /*
+        Nombre: ejecutar
+        Argumentos:
+            (GrafoTransporte) grafo   : El grafo dirigido sobre el que se ejecuta el algoritmo.
+            (Parada)          origen  : La parada desde la que parte el camino.
+            (Parada)          destino : La parada a la que se quiere llegar.
+            (Criterio)        criterio: El peso a minimizar (TIEMPO, COSTO, DISTANCIA o TRANSBORDOS).
+        Objetivo: Calcular el camino de menor costo entre origen y destino usando Floyd-Warshall.
+                  Construye internamente la matriz de distancias mínimas entre todos los pares
+                  de paradas y luego extrae el camino del par solicitado.
+        Retorno: (List<Parada>) Lista ordenada de paradas del camino más corto incluyendo origen
+                 y destino, o null si no existe ningún camino entre ambas paradas.
+     */
     public static List<Parada> ejecutar(GrafoTransporte grafo, Parada origen, Parada destino, Criterio criterio) {
+
         List<Parada> paradas = new ArrayList<>(grafo.getParadas());
 
         Map<Parada, Map<Parada, Double>> dist = new HashMap<>();
@@ -45,7 +59,8 @@ public class FloydWarshall {
                 for (Parada j : paradas) {
                     double ik = dist.get(i).get(k);
                     double kj = dist.get(k).get(j);
-                    if (kj == Double.POSITIVE_INFINITY) continue;
+                    if (kj == Double.POSITIVE_INFINITY)
+                        continue;
                     if (ik + kj < dist.get(i).get(j)) {
                         dist.get(i).put(j, ik + kj);
                         next.get(i).put(j, next.get(i).get(k));
