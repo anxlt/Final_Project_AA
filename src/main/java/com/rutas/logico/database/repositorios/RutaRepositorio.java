@@ -13,7 +13,13 @@ import java.util.List;
 public class RutaRepositorio {
 
     private final StatementService<Ruta> service = StatementService.getInstance();
-
+    /*
+        Nombre: insertar
+        Argumentos:
+            (Ruta) ruta: Objeto ruta que contiene la información de trayecto y pesos.
+        Objetivo: Insertar una nueva ruta transformando los objetos Parada y Criterios a tipos de datos SQL (INT, DOUBLE).
+        Retorno: (int) El ID único generado para la ruta.
+     */
     public int insertar(Ruta ruta) {
         return service.executeUpdateAndGetId(ruta, new PreparedStatementMapper<>() {
             @Override
@@ -36,7 +42,13 @@ public class RutaRepositorio {
             }
         });
     }
-
+    /*
+        Nombre: actualizar
+        Argumentos:
+            (Ruta) ruta: Objeto ruta con los cambios a guardar.
+        Objetivo: Modificar los valores de una ruta existente (nombre, origen, destino, pesos) filtrando por su ID.
+        Retorno: Ninguno.
+     */
     public void actualizar(Ruta ruta) {
         service.executeUpdate(ruta, new PreparedStatementMapper<>() {
             @Override
@@ -61,7 +73,13 @@ public class RutaRepositorio {
             }
         });
     }
-
+    /*
+        Nombre: eliminar
+        Argumentos:
+            (Ruta) ruta: Objeto ruta a eliminar.
+        Objetivo: Remover el registro de la ruta de la base de datos.
+        Retorno: Ninguno.
+     */
     public void eliminar(Ruta ruta) {
         service.executeUpdate(ruta, new PreparedStatementMapper<>() {
             @Override
@@ -75,7 +93,12 @@ public class RutaRepositorio {
             }
         });
     }
-
+    /*
+        Nombre: listarTodas
+        Argumentos: Ninguno.
+        Objetivo: Obtener el listado completo de rutas utilizando un RowMapper complejo para reconstruir las paradas asociadas.
+        Retorno: (List<Ruta>) Lista de objetos Ruta completos.
+     */
     public List<Ruta> listarTodas() {
         return service.getAll(new RutaRowMapper());
     }

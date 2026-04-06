@@ -12,7 +12,13 @@ import java.util.List;
 public class ParadaRepositorio {
 
     private final StatementService<Parada> service = StatementService.getInstance();
-
+    /*
+        Nombre: insertar
+        Argumentos:
+            (Parada) parada: Objeto con los datos de la parada a registrar.
+        Objetivo: Persistir una nueva parada en la base de datos y obtener su código autogenerado.
+        Retorno: (int) El código único asignado por la base de datos.
+     */
     public int insertar(Parada parada) {
         return service.executeUpdateAndGetId(parada, new PreparedStatementMapper<>() {
             @Override
@@ -28,7 +34,13 @@ public class ParadaRepositorio {
             }
         });
     }
-
+    /*
+        Nombre: actualizar
+        Argumentos:
+            (Parada) parada: Objeto parada con los datos modificados y su código original.
+        Objetivo: Actualizar los campos nombre, tipo y ubicación de una parada existente en la persistencia.
+        Retorno: Ninguno.
+     */
     public void actualizar(Parada parada) {
         service.executeUpdate(parada, new PreparedStatementMapper<>() {
             @Override
@@ -45,7 +57,13 @@ public class ParadaRepositorio {
             }
         });
     }
-
+    /*
+        Nombre: eliminar
+        Argumentos:
+            (Parada) parada: Objeto parada que se desea remover.
+        Objetivo: Borrar el registro de la parada de la base de datos basándose en su código.
+        Retorno: Ninguno.
+     */
     public void eliminar(Parada parada) {
         service.executeUpdate(parada, new PreparedStatementMapper<>() {
             @Override
@@ -59,7 +77,12 @@ public class ParadaRepositorio {
             }
         });
     }
-
+    /*
+        Nombre: listarTodas
+        Argumentos: Ninguno.
+        Objetivo: Recuperar todos los registros de la tabla paradas y convertirlos en una lista de objetos.
+        Retorno: (List<Parada>) Lista con todas las paradas encontradas.
+     */
     public List<Parada> listarTodas() {
         return service.getAll(new ParadaRowMapper());
     }

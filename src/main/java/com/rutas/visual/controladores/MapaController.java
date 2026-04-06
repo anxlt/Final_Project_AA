@@ -43,7 +43,11 @@ public class MapaController {
     @FXML private ComboBox<String>   cmbAlgoritmo;
     @FXML private Label lblOrigen;
     @FXML private Label lblDestino;
+    @FXML private Label lblTotal;
+    @FXML private Label lblUnidad;
     @FXML private Button btnAlternativo;
+
+
 
     private SmartGraphPanel<Parada, Ruta> graphView;
     private Digraph<Parada, Ruta> digraph;
@@ -85,7 +89,7 @@ public class MapaController {
         cmbCriterio.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Criterio>() {
             @Override
             public void changed(ObservableValue<? extends Criterio> obs, Criterio oldVal, Criterio newVal) {
-                if (newVal != null && graphView != null) {
+                if (newVal != null && graphView != null && graphView.getScene() != null) {
                     graphView.update();
                 }
             }
@@ -160,7 +164,7 @@ public class MapaController {
 
         SmartGraphProperties props = new SmartGraphProperties(
                 getClass().getResourceAsStream("/smartgraph.properties"));
-        graphView = new SmartGraphPanel<>(digraph, props, new SmartCircularSortedPlacementStrategy());
+        graphView = new SmartGraphPanel<>(digraph, props,  new SmartRandomPlacementStrategy());
         graphView.getStylesheets().clear();
         graphView.getStylesheets().add(getClass().getResource("/smartgraph.css").toExternalForm());
         graphView.setAutomaticLayout(true);
@@ -178,7 +182,7 @@ public class MapaController {
         AnchorPane.setTopAnchor(graphView, 0.0);
         AnchorPane.setLeftAnchor(graphView, 0.0);
         AnchorPane.setRightAnchor(graphView, 0.0);
-        AnchorPane.setBottomAnchor(graphView, 52.0);
+        AnchorPane.setBottomAnchor(graphView, 70.0);
         rootPane.getChildren().add(0, graphView);
 
         Platform.runLater(new Runnable() {
@@ -191,14 +195,16 @@ public class MapaController {
                 pause.setOnFinished(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
-                        graphView.update();
-                        aplicarEstiloBase();
-                        aplicarEstiloAristasBase();
+                        if (graphView.getScene() != null) {
+                            graphView.update();
+                            aplicarEstiloBase();
+                            aplicarEstiloAristasBase();
 
-                        FadeTransition fade = new FadeTransition(Duration.millis(300), graphView);
-                        fade.setFromValue(0);
-                        fade.setToValue(1);
-                        fade.play();
+                            FadeTransition fade = new FadeTransition(Duration.millis(300), graphView);
+                            fade.setFromValue(0);
+                            fade.setToValue(1);
+                            fade.play();
+                        }
                     }
                 });
                 pause.play();
@@ -454,6 +460,7 @@ public class MapaController {
     private void estilizarRutaOptima() {
         List<Parada> camino = new ArrayList<>(rutaOptima);
         limpiarEstilosRuta();
+        rutaOptima = camino;
         for (int i = 0; i < camino.size() - 1; i++) {
             Parada desde = camino.get(i);
             Parada hacia = camino.get(i + 1);
@@ -465,6 +472,8 @@ public class MapaController {
                 }
             }
         }
+        actualizarTotal();
+        btnAlternativo.setDisable(false);
     }
 
     /*
@@ -485,6 +494,37 @@ public class MapaController {
             for (Ruta r : ServicioGrafo.get().getRutas(p))
                 aplicarEstiloArista(r, ESTILO_ARISTA_BASE);
         rutaOptima = new ArrayList<>();
+        lblTotal.setText("—");
+        lblUnidad.setText("");
+    }
+
+    private void actualizarTotal() {
+        Criterio criterio = cmbCriterio.getValue();
+        if (rutaOptima == null || rutaOptima.size() < 2 || criterio == null) {
+            lblTotal.setText("—");
+            lblUnidad.setText("");
+            return;
+        }
+        double total = 0;
+        for (int i = 0; i < rutaOptima.size() - 1; i++) {
+            Parada desde = rutaOptima.get(i);
+            Parada hacia = rutaOptima.get(i + 1);
+            for (Ruta r : ServicioGrafo.get().getRutas(desde)) {
+                if (r.getDestino().equals(hacia)) {
+                    Object peso = r.getPeso(criterio);
+                    if (peso instanceof Number) total += ((Number) peso).doubleValue();
+                    break;
+                }
+            }
+        }
+        lblTotal.setText(String.format("%.1f", total));
+
+        switch (criterio.name()) {
+            case "TIEMPO"    -> lblUnidad.setText("min");
+            case "DISTANCIA" -> lblUnidad.setText("km");
+            case "COSTO"     -> lblUnidad.setText("$");
+            default          -> lblUnidad.setText("");
+        }
     }
 
     /*

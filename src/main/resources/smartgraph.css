@@ -6,7 +6,7 @@
 }
 
 .vertex-label {
-    -fx-font: bold 11pt "sans-serif";
+    -fx-font: bold 8pt "sans-serif";
     -fx-fill: #1B3C53;
 }
 

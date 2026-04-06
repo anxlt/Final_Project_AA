@@ -7,7 +7,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseInitializer {
-
+    /*
+    Nombre: inicializar
+    Argumentos: Ninguno.
+    Objetivo: Crear la estructura de la base de datos (tablas 'paradas' y 'rutas') si no existen, definiendo restricciones de integridad y claves foráneas con borrado en cascada.
+    Retorno: Ninguno. Lanza DatabaseInitializationException en caso de error.
+ */
     public static void inicializar() {
         String sqlParadas = """
                 CREATE TABLE IF NOT EXISTS paradas (
