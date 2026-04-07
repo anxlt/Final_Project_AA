@@ -378,9 +378,13 @@ public class MapaController {
         }
 
         caminosPrevios = new ArrayList<>();
+        caminosPrevios.add(camino);
         rutaOptima = camino;
         btnAlternativo.setDisable(true);
         estilizarRutaOptima();
+        if(!"Floyd-Warshall".equals(algoritmo)) {
+            btnAlternativo.setDisable(false);
+        }
     }
 
     @FXML
@@ -405,12 +409,16 @@ public class MapaController {
                     ServicioGrafo.get(), paradaOrigen, paradaDestino, criterio, caminosPrevios);
         }
 
-        if (alternativo == null || alternativo.isEmpty()) {
+        if ("Floyd-Warshall".equals(cmbAlgoritmo.getValue())) {
+            mostrarAlerta("Alternativo", "Algoritmo Incompatible para busqueda de caminos alternativos." +
+                    "\n\nPresiona limpiar para reiniciar.");
+        } else if (alternativo == null || alternativo.isEmpty()) {
             mostrarAlerta("Alternativo", "No hay más caminos alternativos disponibles.\n"
                     + "Total encontrados: " + caminosPrevios.size()
                     + "\n\nPresiona Limpiar para reiniciar.");
             return;
         }
+
 
         caminosPrevios.add(alternativo);
         rutaOptima = alternativo;
@@ -473,7 +481,6 @@ public class MapaController {
             }
         }
         actualizarTotal();
-        btnAlternativo.setDisable(false);
     }
 
     /*
@@ -539,6 +546,7 @@ public class MapaController {
         if (paradaDestino != null) { aplicarEstiloVertice(paradaDestino, ESTILO_BASE); paradaDestino = null; }
         limpiarEstilosRuta();
         actualizarLabels();
+        btnAlternativo.setDisable(true);
     }
 
     /*
