@@ -10,7 +10,6 @@ public final class StatementService<T> {
 
     private StatementService() {}
 
-    @SuppressWarnings("unchecked")
     public static <T> StatementService<T> getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new StatementService<>();
